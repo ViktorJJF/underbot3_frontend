@@ -75,7 +75,7 @@ import { ElMessageBox } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
 
 // plugins
-const $formatDate: Function | undefined = inject('$formatDate');
+const $formatDate: any = inject('$formatDate');
 const store = useStore();
 
 // Entity
@@ -120,10 +120,10 @@ async function initialize(pageNumber: number = 1): Promise<any> {
 async function save() {
   loadingButton.value = true;
   if (editedIndex.value > -1) {
-    let itemId = assistants.value[editedIndex.value]._id;
+    let assistant_id = assistants.value[editedIndex.value].assistant_id;
     try {
       await store.dispatch('assistantsModule/update', {
-        id: itemId,
+        id: assistant_id,
         data: editedItem.value,
       });
       Object.assign(assistants.value[editedIndex.value], editedItem.value);
@@ -155,7 +155,7 @@ function editItem(item: GenericObject) {
 
 async function deleteItem(item: GenericObject) {
   const index = assistants.value.indexOf(item);
-  let itemId = assistants.value[index]._id;
+  let assistant_id = assistants.value[index].assistant_id;
   if (
     await ElMessageBox.confirm(
       '¿Realmente deseas eliminar este registro?',
@@ -167,7 +167,7 @@ async function deleteItem(item: GenericObject) {
       },
     )
   ) {
-    await store.dispatch('assistantsModule/delete', itemId);
+    await store.dispatch('assistantsModule/delete', assistant_id);
     assistants.value.splice(index, 1);
   }
 }
