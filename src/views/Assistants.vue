@@ -1,375 +1,172 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <material-card
-        width="1500px"
-        icon="mdi-cellphone-dock"
-        color="primary"
-        :title="$t(entity + '.TITLE')"
-        :text="$t(entity + '.SUBTITLE')"
-      >
-        <v-data-table
-          no-results-text="No se encontraron resultados"
-          :search="search"
-          hide-default-footer
-          :headers="headers"
-          :items="items"
-          sort-by="calories"
-          @page-count="pageCount = $event"
-          :page.sync="page"
-          :items-per-page="$store.state.itemsPerPage"
-        >
-          <template v-slot:top>
-            <v-container>
-              <span class="font-weight-bold"
-                >Filtrar por nombre: {{ search }}</span
-              >
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    dense
-                    hide-details
-                    v-model="search"
-                    append-icon="search"
-                    placeholder="Escribe el nombre del formulario"
-                    single-line
-                    outlined
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-dialog v-model="dialog" max-width="700px">
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        color="primary"
-                        dark
-                        class="mb-2"
-                        v-on="on"
-                        v-show="rolPermisos['Write']"
-                        >{{ $t(entity + '.NEW_ITEM') }}</v-btn
-                      >
-                    </template>
-                    <v-card>
-                      <v-card-title>
-                        <v-icon color="primary" class="mr-1">mdi-update</v-icon>
-                        <span class="headline">{{ formTitle }}</span>
-                      </v-card-title>
-                      <v-divider></v-divider>
-                      <ValidationObserver ref="obs" v-slot="{ passes }">
-                        <v-container class="pa-5">
-                          <v-row dense>
-                            <v-col cols="12" sm="12" md="12">
-                              <p class="body-1 font-weight-bold">Nombre</p>
-                              <VTextFieldWithValidation
-                                rules="required"
-                                v-model="editedItem.name"
-                                label="Nombre del formulario"
-                              />
-                            </v-col>
-                            <v-col cols="12" sm="6" md="6">
-                              <p class="body-1 font-weight-bold ma-0">País</p>
-                              <v-select
-                                dense
-                                hide-details
-                                placeholder="País"
-                                outlined
-                                :items="$store.state.countries"
-                                v-model="editedItem.country"
-                              ></v-select>
-                            </v-col>
-                            <v-col cols="12" sm="12" md="12">
-                              <p class="body-1 font-weight-bold">Messenger</p>
-                              <v-combobox
-                                item-text="name"
-                                v-model="editedItem.todofullLabels"
-                                :items="todofullLabels"
-                                multiple
-                                chips
-                                outlined
-                                no-data-text="No se encontraron etiquetas"
-                                label="Busca las etiquetas"
-                              >
-                                <template
-                                  v-slot:selection="{
-                                    attrs,
-                                    item,
-                                    select,
-                                    selected,
-                                  }"
-                                >
-                                  <v-chip
-                                    v-bind="attrs"
-                                    :input-value="selected"
-                                    close
-                                    @click="select"
-                                    @click:close="
-                                      remove(
-                                        item._id,
-                                        editedItem.todofullLabels,
-                                      )
-                                    "
-                                    color="deep-purple accent-4"
-                                    outlined
-                                  >
-                                    <strong>{{ item.name }}</strong>
-                                  </v-chip>
-                                </template>
-                              </v-combobox>
-                            </v-col>
-                          </v-row>
-                        </v-container>
-                        <v-card-actions rd-actions>
-                          <div class="flex-grow-1"></div>
-                          <v-btn outlined color="error" text @click="close"
-                            >Cancelar</v-btn
-                          >
-                          <v-btn
-                            :loading="loadingButton"
-                            color="success"
-                            @click="passes(save)"
-                            >Guardar</v-btn
-                          >
-                        </v-card-actions>
-                      </ValidationObserver>
-                    </v-card>
-                  </v-dialog>
-                </v-col>
-              </v-row>
-              <!-- <span class="font-weight-bold">Ordenar por</span
-              ><v-row>
-                <v-col cols="12" sm="6">
-                  <v-select
-                    outlined
-                    dense
-                    :items="headers"
-                    name="text"
-                  ></v-select>
-                </v-col>
-              </v-row> -->
-            </v-container>
-          </template>
-          <template v-slot:[`item.action`]="{ item }">
-            <v-btn
-              class="mr-1 mb-1"
-              color="primary"
-              fab
-              small
-              dark
-              @click="editItem(item)"
-              v-if="rolPermisos['Edit']"
-            >
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn
-              color="error"
-              fab
-              small
-              dark
-              @click="deleteItem(item)"
-              v-if="rolPermisos['Delete']"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <template v-slot:no-data>
-            <v-alert type="error" :value="true">{{
-              $t('users.NO_DATA')
-            }}</v-alert>
-          </template>
-          <template v-slot:[`item.description`]="{ item }"
-            ><span class="format-breaklines">
-              {{ item.description }}
-            </span></template
+  <div class="row">
+    <div class="col-12">
+      <div class="card box-margin">
+        <div class="card-body">
+          <button
+            type="button"
+            class="btn btn-primary mb-2 mr-2"
+            @click="dialog = true"
           >
-          <template v-slot:[`item.createdAt`]="{ item }">{{
-            item.createdAt | formatDate
-          }}</template>
-          <template v-slot:[`item.status`]="{ item }">
-            <v-chip v-if="item.status" color="success">Activo</v-chip>
-            <v-chip v-else color="error">Inactivo</v-chip>
-          </template>
-        </v-data-table>
-        <v-col cols="12" sm="12">
-          <span>
-            <strong>Mostrando:</strong>
-            {{
-              $store.state.itemsPerPage > items.length
-                ? items.length
-                : $store.state.itemsPerPage
-            }}
-            de {{ items.length }} registros
-          </span>
-        </v-col>
-        <div class="text-center pt-2">
-          <v-pagination v-model="page" :length="pageCount"></v-pagination>
+            Crear Asistente
+          </button>
+          <div class="basic-table-area">
+            <!--Basic Table-->
+            <el-table border stripe :data="assistants" style="width: 100%">
+              <el-table-column label="Fecha creación" prop="created_at" />
+              <el-table-column label="assistant_id" prop="assistant_id" />
+              <el-table-column label="Nombre" prop="name" />
+              <el-table-column>
+                <template #default="scope">
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="handleEdit(scope.$index, scope.row)"
+                    >Editar</el-button
+                  >
+                  <el-button
+                    size="small"
+                    type="danger"
+                    @click="deleteItem(scope.row)"
+                    >Borrar</el-button
+                  >
+                </template>
+              </el-table-column>
+            </el-table>
+            <!--End Basic Table-->
+          </div>
         </div>
-      </material-card>
-    </v-row>
-  </v-container>
+      </div>
+    </div>
+    <el-dialog v-model="dialog" :title="formTitle" width="30%">
+      <el-form label-position="top" label-width="100px">
+        <el-form-item label="Nombre">
+          <el-input v-model="editedItem.name" />
+        </el-form-item>
+        <el-form-item label="Watson skill_id">
+          <el-input v-model="editedItem.watson_skill_id" />
+        </el-form-item>
+        <el-form-item label="Watson api_key">
+          <el-input v-model="editedItem.watson_api_key" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialog = false">Cancelar</el-button>
+          <el-button type="success" @click="save" :loading="loadingButton">
+            Guardar
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
-<script setup lang="ts">
-//Nota: Modifica los campos de la tabla
-const ENTITY = 'gravityForms'; // nombre de la entidad en minusculas (se repite en services y modules del store)
-const CLASS_ITEMS = () =>
-  import(`@/classes/${ENTITY.charAt(0).toUpperCase() + ENTITY.slice(1)}`);
-// const ITEMS_SPANISH = 'marcas';
-import { format } from 'date-fns';
-import VTextFieldWithValidation from '@/components/inputs/VTextFieldWithValidation';
-import MaterialCard from '@/components/material/Card';
-import auth from '@/services/api/auth';
-import { es } from 'date-fns/locale';
-export default {
-  components: {
-    MaterialCard,
-    VTextFieldWithValidation,
-  },
-  filters: {
-    formatDate: function (value) {
-      return format(new Date(value), "d 'de' MMMM 'del' yyyy", {
-        locale: es,
+<script lang="ts" setup>
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
+import type { GenericObject } from '@/types/GenericObject';
+import Asssitant from '@/models/Assistants';
+import { ElMessageBox } from 'element-plus';
+import { Delete } from '@element-plus/icons-vue';
+
+const store = useStore();
+
+// Entity
+let assistants = ref<GenericObject[]>([]);
+let editedItem = ref<GenericObject>(Asssitant());
+let defaultItem = ref<GenericObject>(Asssitant());
+// Pagination
+let pagination = ref<GenericObject>({});
+let page = ref<number>(1);
+let pageCount = ref<number>(0);
+// Search
+let fieldsToSearch = ref<string[]>(['name']);
+let search = ref<string>('');
+// Others
+let loadingButton = ref<boolean>(false);
+let delayTimer: any = null;
+let editedIndex = ref<number>(-1);
+
+let dialog = ref<boolean>(false);
+
+const formTitle = computed(() => {
+  return editedIndex.value === -1 ? 'Crear Asistente' : 'Editar Asistente';
+});
+
+onMounted(() => {
+  initialize();
+});
+
+async function initialize(pageNumber: number = 1): Promise<any> {
+  let payload = {
+    page: page.value || pageNumber,
+    search: search.value,
+    fieldsToSearch: fieldsToSearch.value,
+    sort: 'createdAt',
+    order: 'desc',
+    limit: 50,
+  };
+  await Promise.all([store.dispatch('assistantsModule/list', payload)]);
+  assistants.value = store.state.assistantsModule.assistants;
+}
+
+async function save() {
+  loadingButton.value = true;
+  if (editedIndex.value > -1) {
+    let itemId = assistants.value[editedIndex.value]._id;
+    try {
+      await store.dispatch('assistantsModule/update', {
+        id: itemId,
+        data: editedItem.value,
       });
-    },
-  },
-  data: () => ({
-    page: 1,
-    pageCount: 0,
-    loadingButton: false,
-    search: '',
-    dialog: false,
-    headers: [
-      {
-        text: 'Agregado',
-        align: 'left',
-        sortable: false,
-        value: 'createdAt',
-      },
-      {
-        text: 'Nombre',
-        align: 'left',
-        sortable: false,
-        value: 'name',
-      },
-      { text: 'Acciones', value: 'action', sortable: false },
-    ],
-    [ENTITY]: [],
-    advisors: [],
-    editedIndex: -1,
-    editedItem: CLASS_ITEMS(),
-    defaultItem: CLASS_ITEMS(),
-    menu1: false,
-    menu2: false,
-    rolPermisos: {},
-    todofullLabels: [],
-  }),
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1
-        ? this.$t(this.entity + '.NEW_ITEM')
-        : this.$t(this.entity + '.EDIT_ITEM');
-    },
-    items() {
-      return this[ENTITY];
-    },
-    entity() {
-      return ENTITY;
-    },
-  },
-  watch: {
-    dialog(val) {
-      val || this.close();
-    },
-  },
-  async mounted() {
-    this.$store.commit('loadingModule/showLoading');
-    await this.$store.dispatch('gravityFormsModule/list');
-    this.initialize();
-    this.rolAuth();
-  },
-  methods: {
-    rolAuth() {
-      auth
-        .roleAuthorization({
-          id: this.$store.state.authModule.user._id,
-          menu: 'Configuracion/Propiedades',
-          model: 'GravityForms',
-        })
-        .then((res) => {
-          this.rolPermisos = res.data;
-        })
-        .finally(() => this.$store.commit('loadingModule/showLoading', false));
-    },
-    async initialize() {
-      //llamada asincrona de items
-      await Promise.all([
-        this.$store.dispatch('todofullLabelsModule/list', {
-          sort: 'name',
-          order: 1,
-        }),
-        this.$store.dispatch(ENTITY + 'Module/list'),
-      ]);
-      this.todofullLabels =
-        this.$store.state['todofullLabelsModule']['todofullLabels'];
-      //asignar al data del componente
-      this[ENTITY] = this.$deepCopy(
-        this.$store.state[ENTITY + 'Module'][ENTITY],
+      Object.assign(assistants.value[editedIndex.value], editedItem.value);
+      close();
+    } finally {
+      loadingButton.value = false;
+    }
+  } else {
+    //create item
+    try {
+      let newItem = await store.dispatch(
+        'assistantsModule/create',
+        editedItem.value,
       );
-      console.log('🚀 Aqui *** -> this[ENTITY]', this[ENTITY]);
-    },
-    editItem(item) {
-      this.editedIndex = this[ENTITY].indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
-    async deleteItem(item) {
-      const index = this[ENTITY].indexOf(item);
-      let itemId = this[ENTITY][index]._id;
-      if (await this.$confirm('¿Realmente deseas eliminar este registro?')) {
-        await this.$store.dispatch(this[ENTITY] + 'Module/delete', itemId);
-        this[ENTITY].splice(index, 1);
-      }
-    },
-    close() {
-      this.dialog = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-    },
-    async save() {
-      this.loadingButton = true;
-      if (this.editedIndex > -1) {
-        let itemId = this[ENTITY][this.editedIndex]._id;
-        try {
-          await this.$store.dispatch(ENTITY + 'Module/update', {
-            id: itemId,
-            data: this.editedItem,
-          });
-          Object.assign(this[ENTITY][this.editedIndex], this.editedItem);
-          this.close();
-        } finally {
-          this.loadingButton = false;
-        }
-      } else {
-        //create item
-        try {
-          let newItem = await this.$store.dispatch(
-            ENTITY + 'Module/create',
-            this.editedItem,
-          );
-          this[ENTITY].push(newItem);
-          this.close();
-        } finally {
-          this.loadingButton = false;
-        }
-      }
-    },
-    remove(itemId, labels) {
-      console.log('🚀 Aqui *** -> itemId, labels', itemId, labels);
-      let index = labels.findIndex((label) => label._id == itemId);
-      labels.splice(index, 1);
-    },
-  },
-};
+      assistants.value.push(newItem);
+      close();
+      initialize();
+    } finally {
+      loadingButton.value = false;
+    }
+  }
+}
+
+async function deleteItem(item: GenericObject) {
+  const index = assistants.value.indexOf(item);
+  let itemId = assistants.value[index]._id;
+  if (
+    await ElMessageBox.confirm(
+      '¿Realmente deseas eliminar este registro?',
+      'Confirmación',
+      {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancelar',
+        type: 'warning',
+      },
+    )
+  ) {
+    await store.dispatch('assistantsModule/delete', itemId);
+    assistants.value.splice(index, 1);
+  }
+}
+
+async function close() {
+  dialog.value = false;
+  setTimeout(() => {
+    editedItem.value = Object.assign({}, defaultItem.value);
+    editedIndex.value = -1;
+  }, 300);
+}
 </script>
 
 <style lang="scss" scoped></style>

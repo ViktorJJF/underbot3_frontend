@@ -2,9 +2,19 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
-    path: '/assistants',
-    name: 'Assistants',
-    component: () => import('@/views/Assistants.vue'),
+    path: '/',
+    name: 'AdminLayout',
+    component: () => import('@/layouts/AdminLayout.vue'),
+    redirect: {
+      name: 'Assistants',
+    },
+    children: [
+      {
+        path: '/assistants',
+        name: 'Assistants',
+        component: () => import('@/views/Assistants.vue'),
+      },
+    ],
   },
 ];
 
