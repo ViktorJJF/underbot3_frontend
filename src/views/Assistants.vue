@@ -13,7 +13,11 @@
           <div class="basic-table-area">
             <!--Basic Table-->
             <el-table border stripe :data="assistants" style="width: 100%">
-              <el-table-column label="Fecha creación" prop="created_at" />
+              <el-table-column label="Fecha creación" prop="created_at">
+                <template #default="scope">
+                  <span>{{ $formatDate(scope.row.created_at) }}</span>
+                </template>
+              </el-table-column>
               <el-table-column label="assistant_id" prop="assistant_id" />
               <el-table-column label="Nombre" prop="name" />
               <el-table-column>
@@ -21,7 +25,7 @@
                   <el-button
                     size="small"
                     type="primary"
-                    @click="handleEdit(scope.$index, scope.row)"
+                    @click="editItem(scope.row)"
                     >Editar</el-button
                   >
                   <el-button
@@ -63,13 +67,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import type { GenericObject } from '@/types/GenericObject';
 import Asssitant from '@/models/Assistants';
 import { ElMessageBox } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
 
+// plugins
+const $formatDate: Function | undefined = inject('$formatDate');
 const store = useStore();
 
 // Entity
@@ -139,6 +145,12 @@ async function save() {
       loadingButton.value = false;
     }
   }
+}
+
+function editItem(item: GenericObject) {
+  editedIndex.value = assistants.value.indexOf(item);
+  editedItem.value = Object.assign({}, item);
+  dialog.value = true;
 }
 
 async function deleteItem(item: GenericObject) {

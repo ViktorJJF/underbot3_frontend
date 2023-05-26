@@ -92,9 +92,9 @@ export const handleError = (error: GenericObject, commit: any, reject: any) => {
   } else {
     console.log('se produjo else');
     // Any other error
-    errMsg = error.response
-      ? error.response.data.errors.msg
-      : 'SERVER_TIMEOUT_CONNECTION_ERROR';
+    // errMsg = error.response
+    //   ? error.response.data.errors.msg
+    //   : 'SERVER_TIMEOUT_CONNECTION_ERROR';
     // setTimeout(
     //   () =>
     //     errMsg
@@ -102,7 +102,7 @@ export const handleError = (error: GenericObject, commit: any, reject: any) => {
     //       : commit('errorModule/showError', false, { root: true }),
     //   0,
     // );
-    createToast(errMsg, { timeout: 3000, type: 'danger' });
+    createToast('Error', { timeout: 3000, type: 'danger' });
   }
   reject(error);
   return 0;
