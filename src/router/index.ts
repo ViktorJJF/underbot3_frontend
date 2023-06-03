@@ -14,6 +14,26 @@ const routes = [
         name: 'Assistants',
         component: () => import('@/views/Assistants.vue'),
       },
+      {
+        path: '/assistants/update',
+        name: 'Assistant',
+        component: () => import('@/views/AssistantsUpdate.vue'),
+      },
+      {
+        path: '/assistants/documents',
+        name: 'Documents',
+        component: () => import('@/views/Documents/index.vue'),
+      },
+      {
+        path: '/assistants/documents/:document_id',
+        name: 'DocumentsUpdate',
+        component: () => import('@/views/Documents/update.vue'),
+      },
+      {
+        path: '/assistants/entities',
+        name: 'Entities',
+        component: () => import('@/views/Entities.vue'),
+      },
     ],
   },
 ];

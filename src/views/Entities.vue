@@ -7,12 +7,12 @@
             @click="
               close();
             dialog = true;
-                                                                                                                                                                                              ">
+                                                                                                                                                    ">
             Crear Asistente
           </button>
           <div class="basic-table-area">
             <!--Basic Table-->
-            <el-table border stripe :data="assistants" style="width: 100%">
+            <el-table border stripe :data="entities" style="width: 100%">
               <el-table-column label="Fecha creación" prop="created_at">
                 <template #default="scope">
                   <span>{{ $formatDate(scope.row.created_at) }}</span>
@@ -25,7 +25,7 @@
                   <el-button size="small" type="primary" @click="editItem(scope.row)">Editar</el-button>
                   <el-button size="small" type="primary" color="#5E00D9" @click="
                     $router.push({
-                      path: `/assistants/update`,
+                      path: `/entities/update`,
                       query: {
                         assistant_id: scope.row.assistant_id,
                       },
@@ -43,9 +43,6 @@
       <el-form label-position="top" label-width="100px">
         <el-form-item label="Nombre">
           <el-input v-model="editedItem.name" />
-        </el-form-item>
-        <el-form-item label="Webhook">
-          <el-input v-model="editedItem.webhooks[0].url" />
         </el-form-item>
         <el-form-item label="Bot_id relacionado">
           <el-input v-model="editedItem.bot_id" />
@@ -74,7 +71,7 @@ import { ref, onMounted, computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
-import Asssitant from '@/models/Assistants';
+import Entity from '@/models/Entities';
 import { ElMessageBox } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
 
@@ -84,9 +81,9 @@ const $store = useStore();
 const $route = useRoute();
 const $router = useRouter();
 // Entity
-let assistants = ref<GenericObject[]>([]);
-let editedItem = ref<GenericObject>(Asssitant());
-let defaultItem = ref<GenericObject>(Asssitant());
+let entities = ref<GenericObject[]>([]);
+let editedItem = ref<GenericObject>(Entity());
+let defaultItem = ref<GenericObject>(Entity());
 // Pagination
 let pagination = ref<GenericObject>({});
 let page = ref<number>(1);
@@ -118,30 +115,20 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     order: 'desc',
     limit: 3000,
   };
-  await Promise.all([$store.dispatch('assistantsModule/list', payload)]);
-  const preAssistants = $store.state.assistantsModule.assistants;
-  for (let assistant of preAssistants) {
-    if (!assistant.webhooks) {
-      assistant.webhooks = [{
-        "headers": [],
-        "name": "main_webhook",
-        "url": ""
-      }]
-    }
-  }
-  assistants.value = $store.state.assistantsModule.assistants;
+  await Promise.all([$store.dispatch('entitiesModule/list', payload)]);
+  entities.value = $store.state.entitiesModule.entities;
 }
 
 async function save() {
   loadingButton.value = true;
   if (editedIndex.value > -1) {
-    let assistant_id = assistants.value[editedIndex.value].assistant_id;
+    let assistant_id = entities.value[editedIndex.value].assistant_id;
     try {
-      await $store.dispatch('assistantsModule/update', {
+      await $store.dispatch('entitiesModule/update', {
         id: assistant_id,
         data: editedItem.value,
       });
-      Object.assign(assistants.value[editedIndex.value], editedItem.value);
+      Object.assign(entities.value[editedIndex.value], editedItem.value);
       close();
     } finally {
       loadingButton.value = false;
@@ -150,10 +137,10 @@ async function save() {
     //create item
     try {
       let newItem = await $store.dispatch(
-        'assistantsModule/create',
+        'entitiesModule/create',
         editedItem.value,
       );
-      assistants.value.push(newItem);
+      entities.value.push(newItem);
       close();
       initialize();
     } finally {
@@ -163,14 +150,14 @@ async function save() {
 }
 
 function editItem(item: GenericObject) {
-  editedIndex.value = assistants.value.indexOf(item);
+  editedIndex.value = entities.value.indexOf(item);
   editedItem.value = Object.assign({}, item);
   dialog.value = true;
 }
 
 async function deleteItem(item: GenericObject) {
-  const index = assistants.value.indexOf(item);
-  let assistant_id = assistants.value[index].assistant_id;
+  const index = entities.value.indexOf(item);
+  let assistant_id = entities.value[index].assistant_id;
   if (
     await ElMessageBox.confirm(
       '¿Realmente deseas eliminar este registro?',
@@ -182,8 +169,8 @@ async function deleteItem(item: GenericObject) {
       },
     )
   ) {
-    await $store.dispatch('assistantsModule/delete', assistant_id);
-    assistants.value.splice(index, 1);
+    await $store.dispatch('entitiesModule/delete', assistant_id);
+    entities.value.splice(index, 1);
   }
 }
 

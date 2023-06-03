@@ -157,3 +157,8 @@ export const buildQueryWithPagination = (query: GenericObject) => {
   }
   return { ...queryWithPagination, ...query };
 };
+
+export const getAssistantIdFromUrl = (): string => {
+  const params = new URLSearchParams(window.location.href.split('?')[1]);
+  return params.get('assistant_id') as string;
+};
