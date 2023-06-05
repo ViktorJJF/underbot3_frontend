@@ -6,7 +6,7 @@ export default createStore({
   modules,
   state: {
     currentAssistantId: '',
-    itemsPerPage: 30,
+    itemsPerPage: 25,
     snackbar: {
       text: '',
       active: false,

@@ -7,8 +7,6 @@ import {
 } from '@/utils/utils';
 import type { GenericObject } from '@/types/GenericObject';
 
-const assistant_id = getAssistantIdFromUrl();
-
 const module = {
   namespaced: true,
   state: {
@@ -25,7 +23,7 @@ const module = {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .list(finalQuery, assistant_id)
+          .list(finalQuery, getAssistantIdFromUrl())
           .then((response) => {
             commit('loadingModule/showLoading', false, { root: true });
             commit('list', response.data.payload);
@@ -42,7 +40,7 @@ const module = {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .listOne(id, assistant_id)
+          .listOne(id, getAssistantIdFromUrl())
           .then((response) => {
             commit('loadingModule/showLoading', false, { root: true });
             resolve(response.data.payload);
@@ -55,9 +53,8 @@ const module = {
     create({ commit }: { commit: any; state: any }, data: GenericObject) {
       return new Promise((resolve, reject) => {
         api
-          .create(data, assistant_id)
+          .create(data, getAssistantIdFromUrl())
           .then((res) => {
-            commit('loadingModule/showLoading', true, { root: true });
             buildSuccess('Registro guardado con éxito');
             commit('create', res.data.payload);
             resolve(res.data.payload);
@@ -73,9 +70,8 @@ const module = {
     ) {
       return new Promise((resolve, reject) => {
         api
-          .update(id, data, assistant_id)
+          .update(id, data, getAssistantIdFromUrl())
           .then((res) => {
-            commit('loadingModule/showLoading', true, { root: true });
             if (notifyUser) {
               buildSuccess('Registro actualizado con éxito');
             }
@@ -93,9 +89,8 @@ const module = {
     delete({ commit }: { commit: any; state: any }, id: string) {
       return new Promise((resolve, reject) => {
         api
-          .delete(id, assistant_id)
+          .delete(id, getAssistantIdFromUrl())
           .then(() => {
-            commit('loadingModule/showLoading', true, { root: true });
             buildSuccess('Registro eliminado con éxito');
             commit('delete', id);
             resolve(null);

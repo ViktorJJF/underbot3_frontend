@@ -330,15 +330,15 @@ img {
   padding-top: 50px;
   padding-bottom: 50px; }
 
-#preloader {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: #ffffff;
-  z-index: 999999; }
-
+  #preloader {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 999999; }
+  
 .h-100vh {
   height: 100vh !important; }
 
@@ -8807,11 +8807,13 @@ a.mytooltip {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.5); /* Use RGBA with an alpha value for transparency */
   position: fixed;
   width: 100%;
   height: 100%;
-  z-index: 10000; }
+  z-index: 10000;
+}
+
 
 #hasro-load {
   width: 70px;

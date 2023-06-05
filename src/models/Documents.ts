@@ -1,6 +1,6 @@
 export default () => ({
   assistant_id: '',
   content: '',
-  type: '',
+  type: 'document',
   title: '',
 });

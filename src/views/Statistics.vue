@@ -1,0 +1,80 @@
+<template>
+  <div class="row">
+    <div class="col-12">
+      <div class="card box-margin">
+        <div class="card-body">
+          <div><b>Asistente: </b>{{ assistant.name }}</div>
+          <div><b>assistant_id: </b>{{ assistant.assistant_id }}</div>
+          <el-button size="large" type="primary" color="#5E00D9" @click="train" :loading="isTrainLoading">Train
+            (Vectorizar)</el-button>
+          <el-button :disabled="!assistant.watson_skill_id || !assistant.watson_api_key" size="large" type="primary"
+            color="#5E00D9" @click="syncWithWatson" :loading="isSync">Sincronizar con
+            Watson {{ !assistant.watson_skill_id || !assistant.watson_api_key ? '(Faltan credenciales)' : ''
+            }}</el-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref, inject, computed, reactive } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import type { GenericObject } from '@/types/GenericObject';
+
+// plugins
+const $formatDate: any = inject('$formatDate');
+const $store = useStore();
+const $route = useRoute();
+const $router = useRouter();
+
+let assistant = ref<GenericObject>({});
+let nodes = ref<GenericObject>({});
+let firstNode = ref<GenericObject | null>(null);
+let orderedNodes = ref<GenericObject[]>([]);
+const isTrainLoading = ref<boolean>(false);
+const isSync = ref<boolean>(false);
+const key = ref<number>(0);
+
+const assistant_id = computed<string>(() => {
+  return $route.query.assistant_id as string;
+});
+
+onMounted(() => {
+  initialize();
+});
+
+async function initialize() {
+  assistant.value = await $store.dispatch(
+    'assistantsModule/listOne',
+    assistant_id.value,
+  );
+  key.value += 1;
+}
+
+async function train() {
+  try {
+    isTrainLoading.value = true;
+    await $store.dispatch("assistantsModule/train", assistant_id.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isTrainLoading.value = false;
+  }
+}
+
+async function syncWithWatson() {
+  try {
+    isSync.value = true;
+    await $store.dispatch("assistantsModule/generateFromWatson", assistant_id.value)
+    initialize()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isSync.value = false;
+  }
+}
+</script>
+
+<style lang="scss" scoped></style>

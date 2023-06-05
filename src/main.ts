@@ -10,13 +10,16 @@ import 'element-plus/dist/index.css';
 // plugins
 import moshaToasTify from '@/plugins/moshaToastify';
 import dateFns from '@/plugins/dateFns';
+import deepCopy from '@/plugins/deepCopy';
 
 // import styles
 import '@/assets/scss/main.scss';
+// import '@/assets/css/databot.css';
 
 const app = createApp(App);
 
 app.use(ElementPlus);
 app.use(moshaToasTify);
 app.use(dateFns);
+app.use(deepCopy);
 app.use(router).use(store).mount('#app');

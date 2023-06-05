@@ -2,15 +2,6 @@
     <div class="row" :key="key">
         <div class="col-12">
             <div class="card box-margin">
-                <div class="card-body">
-                    <div><b>Asistente: </b>{{ assistant.name }}</div>
-                    <div><b>assistant_id: </b>{{ assistant.assistant_id }}</div>
-                    <el-button size="large" type="primary" color="#5E00D9" @click="train" :loading="isTrainLoading">Train
-                        (Vectorizar)</el-button>
-                    <el-button size="large" type="primary" color="#5E00D9" @click="syncWithWatson"
-                        :loading="isSync">Sincronizar con
-                        Watson</el-button>
-                </div>
                 <ListNodesComponent v-if="firstNode" :firstNode="firstNode" :nodes="nodes"></ListNodesComponent>
             </div>
         </div>
@@ -49,7 +40,6 @@ onMounted(() => {
 });
 
 async function initialize() {
-    console.log('🚀 Aqui *** -> assistant.value:', assistant_id.value);
     assistant.value = await $store.dispatch(
         'assistantsModule/listOne',
         assistant_id.value,

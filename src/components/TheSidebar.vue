@@ -3,8 +3,8 @@
   <div class="ecaps-sidemenu-area">
     <!-- Desktop Logo -->
     <div class="ecaps-logo">
-      <a href="/"><img class="desktop-logo" src="img/core-img/logo.png" alt="Desktop Logo" />
-        <img class="small-logo" src="img/core-img/small-logo.png" alt="Mobile Logo" /></a>
+      <a href="/"><img class="desktop-logo" src="https://ia.databot.cl/img/brand/0-default.svg" alt="Desktop Logo" />
+        <img class="small-logo" src="https://ia.databot.cl/img/brand/0-default.svg" alt="Mobile Logo" /></a>
     </div>
 
     <!-- Side Nav -->
@@ -15,19 +15,50 @@
         <nav>
           <ul class="sidebar-menu" data-widget="tree">
             <li>
-              <a href="/assistants"><i class="bx bx-home-heart"></i><span>Asistentes</span></a>
+              <router-link to="/assistants" class="nav-link" active-class="active">
+                <i class="bx bx-home-heart"></i><span>Asistentes</span>
+              </router-link>
             </li>
             <li v-if="assistant_id">
-              <a :href="`/assistants/documents?assistant_id=${assistant_id}`"><i
-                  class="bx bx-home-heart"></i><span>Documentos</span></a>
+              <router-link :to="`/assistants/statistics?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bx-list-ul"></i><span>Estadísticas</span>
+              </router-link>
             </li>
             <li v-if="assistant_id">
-              <a :href="`/assistants/products?assistant_id=${assistant_id}`"><i
-                  class="bx bx-home-heart"></i><span>Productos</span></a>
+              <router-link :to="`/assistants/intents?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bx-list-ul"></i><span>Intenciones</span>
+              </router-link>
             </li>
             <li v-if="assistant_id">
-              <a :href="`/assistants/entities?assistant_id=${assistant_id}`"><i
-                  class="bx bx-home-heart"></i><span>Entidades</span></a>
+              <router-link :to="`/assistants/entities?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bx-list-ul"></i><span>Entidades</span>
+              </router-link>
+            </li>
+            <li v-if="assistant_id">
+              <router-link :to="`/assistants/dialog?assistant_id=${assistant_id}`" class="nav-link" active-class="active">
+                <i class="bx bx-list-ul"></i><span>Diálogo</span>
+              </router-link>
+            </li>
+            <li v-if="assistant_id">
+              <router-link :to="`/assistants/documents?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bx-list-ul"></i><span>Documentos</span>
+              </router-link>
+            </li>
+            <li v-if="assistant_id">
+              <router-link :to="`/assistants/products?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bxs-cart"></i><span>Productos</span>
+              </router-link>
+            </li>
+            <li v-if="assistant_id">
+              <router-link :to="`/assistants/playground?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="fa fa-flask"></i><span>Playground</span>
+              </router-link>
             </li>
           </ul>
         </nav>
@@ -50,4 +81,9 @@ const assistant_id = computed<string>(() => {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.nav-link.active {
+  background-color: #5E00D9;
+  color: #ffffff;
+}
+</style>

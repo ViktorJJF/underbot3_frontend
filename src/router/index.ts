@@ -12,13 +12,18 @@ const routes = [
       {
         path: '/assistants',
         name: 'Assistants',
-        component: () => import('@/views/Assistants.vue'),
+        component: () => import('@/views/AssistantsView.vue'),
       },
       {
-        path: '/assistants/update',
-        name: 'Assistant',
-        component: () => import('@/views/AssistantsUpdate.vue'),
+        path: '/assistants/statistics',
+        name: 'Statistics',
+        component: () => import('@/views/Statistics.vue'),
       },
+      // {
+      //   path: '/assistants/update',
+      //   name: 'Assistant',
+      //   component: () => import('@/src/views/Assistants.vue'),
+      // },
       {
         path: '/assistants/documents',
         name: 'Documents',
@@ -30,9 +35,29 @@ const routes = [
         component: () => import('@/views/Documents/update.vue'),
       },
       {
+        path: '/assistants/intents',
+        name: 'Intents',
+        component: () => import('@/views/IntentsView.vue'),
+      },
+      {
         path: '/assistants/entities',
         name: 'Entities',
-        component: () => import('@/views/Entities.vue'),
+        component: () => import('@/views/EntitiesView.vue'),
+      },
+      {
+        path: '/assistants/dialog',
+        name: 'Dialog',
+        component: () => import('@/views/DialogView.vue'),
+      },
+      {
+        path: '/assistants/products',
+        name: 'Products',
+        component: () => import('@/views/ProductsView.vue'),
+      },
+      {
+        path: '/assistants/playground',
+        name: 'Playground',
+        component: () => import('@/views/PlaygroundView.vue'),
       },
     ],
   },

@@ -1,26 +1,18 @@
-import api from '@/services/api/assistants';
+import api from '@/services/api/intents';
 import {
   buildSuccess,
   handleError,
   buildQueryWithPagination,
+  getAssistantIdFromUrl,
 } from '@/utils/utils';
 import type { GenericObject } from '@/types/GenericObject';
 
 const module = {
   namespaced: true,
   state: {
-    assistants: [],
-    messages: [],
-    selectedChat: null,
+    intents: [],
     total: 0,
     totalPages: 0,
-    hasToUpdateSelectedChat: false,
-    hasPendingNegotiationStatus: false,
-    filters: {
-      negotiationStatusId: null,
-      selectedSellTeamObject: null,
-    },
-    currentController: null,
   },
   actions: {
     list(
@@ -31,7 +23,7 @@ const module = {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .list(finalQuery)
+          .list(finalQuery, getAssistantIdFromUrl())
           .then((response) => {
             commit('loadingModule/showLoading', false, { root: true });
             commit('list', response.data.payload);
@@ -44,14 +36,11 @@ const module = {
           });
       });
     },
-    listOne(
-      { commit, state }: { commit: any; state: any },
-      assistant_id: string,
-    ) {
+    listOne({ commit, state }: { commit: any; state: any }, id: string) {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .listOne(assistant_id)
+          .listOne(id, getAssistantIdFromUrl())
           .then((response) => {
             commit('loadingModule/showLoading', false, { root: true });
             resolve(response.data.payload);
@@ -63,11 +52,9 @@ const module = {
     },
     create({ commit }: { commit: any; state: any }, data: GenericObject) {
       return new Promise((resolve, reject) => {
-        commit('loadingModule/showLoading', true, { root: true });
         api
-          .create(data)
+          .create(data, getAssistantIdFromUrl())
           .then((res) => {
-            commit('loadingModule/showLoading', false, { root: true });
             buildSuccess('Registro guardado con éxito');
             commit('create', res.data.payload);
             resolve(res.data.payload);
@@ -82,11 +69,9 @@ const module = {
       { id, data, notifyUser = true }: any = {},
     ) {
       return new Promise((resolve, reject) => {
-        commit('loadingModule/showLoading', true, { root: true });
         api
-          .update(id, data)
+          .update(id, data, getAssistantIdFromUrl())
           .then((res) => {
-            commit('loadingModule/showLoading', false, { root: true });
             if (notifyUser) {
               buildSuccess('Registro actualizado con éxito');
             }
@@ -103,42 +88,11 @@ const module = {
     },
     delete({ commit }: { commit: any; state: any }, id: string) {
       return new Promise((resolve, reject) => {
-        commit('loadingModule/showLoading', true, { root: true });
         api
-          .delete(id)
+          .delete(id, getAssistantIdFromUrl())
           .then(() => {
-            commit('loadingModule/showLoading', false, { root: true });
             buildSuccess('Registro eliminado con éxito');
             commit('delete', id);
-            resolve(null);
-          })
-          .catch((error) => {
-            handleError(error, commit, reject);
-          });
-      });
-    },
-    train({ commit }: { commit: any; state: any }, assistant_id: string) {
-      return new Promise((resolve, reject) => {
-        api
-          .train(assistant_id)
-          .then(() => {
-            buildSuccess('Entrenamiento finalizado con éxito');
-            resolve(null);
-          })
-          .catch((error) => {
-            handleError(error, commit, reject);
-          });
-      });
-    },
-    generateFromWatson(
-      { commit }: { commit: any; state: any },
-      assistant_id: string,
-    ) {
-      return new Promise((resolve, reject) => {
-        api
-          .generateFromWatson(assistant_id)
-          .then(() => {
-            buildSuccess('Sincronización con Watson finalizada');
             resolve(null);
           })
           .catch((error) => {
@@ -149,7 +103,7 @@ const module = {
   },
   mutations: {
     list(state: GenericObject, data: GenericObject) {
-      state.assistants = data;
+      state.intents = data;
     },
     totalItems(state: GenericObject, data: GenericObject) {
       state.total = data;
@@ -158,24 +112,24 @@ const module = {
       state.totalPages = data;
     },
     create(state: GenericObject, data: GenericObject) {
-      state.assistants.push(data);
+      state.intents.push(data);
     },
     update(
       state: GenericObject,
       { id, data }: { id: string; data: GenericObject },
     ) {
-      let indexToUpdate = state.assistants.findIndex(
+      let indexToUpdate = state.intents.findIndex(
         (el: GenericObject) => el._id == id,
       );
-      state.assistants.splice(indexToUpdate, 1, {
+      state.intents.splice(indexToUpdate, 1, {
         ...data,
       });
     },
     delete(state: GenericObject, id: string) {
-      let indexToDelete = state.assistants.findIndex(
+      let indexToDelete = state.intents.findIndex(
         (el: GenericObject) => el._id == id,
       );
-      state.assistants.splice(indexToDelete, 1);
+      state.intents.splice(indexToDelete, 1);
       state.total -= 1;
     },
   },
