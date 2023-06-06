@@ -7,32 +7,116 @@
             <h3>Bot no existe</h3>
           </div>
           <div class="row" v-else>
-            <div class="col-sm-6">
-              <div><b>Bot ID: </b> {{ assistant.bot_id }}</div>
-
+            <div class="col-xs-12 col-sm-8">
+              <div><b>Bot </b> {{ assistant.name }}</div>
+              <div><b>Bot ID Databot: </b> {{ assistant.bot_id }}</div>
+              <div><b>assistant_id: </b> {{ assistant.assistant_id }}</div>
+              <div><b>Sesión actual: </b> {{ session_id }}</div>
+              <div>
+                <h5>Prompt tokens: {{ promptTokens }}</h5>
+              </div>
+              <div>
+                <h5>Completion tokens: {{ completionTokens }}</h5>
+              </div>
+              <div>
+                <h5>Total para sesión activa: {{ promptTokens + completionTokens }}</h5>
+              </div>
+              <div>
+                <h5>Costo para sesión activa: {{ (((promptTokens + completionTokens) / 1000) * 0.002).toFixed(4) }} usd
+                </h5>
+              </div>
+              <h5>Solicitudes API LLM</h5>
+              <el-table :data="llmTracker" style="width: 100%" :row-class-name="tableRowClassName">
+                <el-table-column prop="is_stream" label="Stream?" width="180" />
+                <el-table-column prop="status_request" label="Código Respuesta" width="180" />
+                <el-table-column prop="response_time" label="Tiempo respuesta(segs)" width="180">
+                  <template #default="scope">
+                    <ul>
+                      <li>{{ scope.row.response_time }} </li>
+                      <li v-show="scope.row.is_stream">{{ scope.row.response_time_before_stream }} antes de stream
+                      </li>
+                    </ul>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="total_tokens" label="Tokens" />
+                <el-table-column prop="response" label="Detalle">
+                  <template #default="scope">
+                    <el-button size="small" type="primary"
+                      @click="selectedLlmTracker = scope.row; dialogDetails = true;">Ver
+                      detalle</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </div>
 
-            <div class="col-sm-6">
-              <div class="preview"><iframe class="expand"
-                  :src="`https://databot-api.herokuapp.com/bot?id=${bot.id}&token=${bot.token}&clientPathName=${pathname}/&clientHostName=${hostname}`"></iframe>
+            <div class="col-xs-12 col-sm-4">
+              <el-button size="small" type="primary" @click="remountIframe += 1">Recargar iframe bot</el-button>
+              <div class="preview"><iframe :key="remountIframe" class="expand"
+                  :src="`${config.DATABOT_BOT_URL}/bot?id=${bot.id}&token=${bot.token}&clientPathName=${pathname}&clientHostName=${hostname}&isPlayground=true&assistant_id=${reversedAssistantId}`"></iframe>
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
+    <el-dialog v-model="dialogDetails"
+      :title="'Detalles de solicitud a LLM ' + (selectedLlmTracker.is_stream ? '(Solicitud stream final)' : '(Solicitud intermedia)')"
+      width="50%">
+      <el-form label-position="top" label-width="100px">
+        <h5>Consumo de tokens: </h5>
+        <ul class="mb-3">
+          <li>prompt_tokens: {{ selectedLlmTracker.prompt_tokens }} </li>
+          <li>completion_tokens: {{ selectedLlmTracker.completion_tokens }} </li>
+          <li>Total: {{ selectedLlmTracker.total_tokens }} </li>
+        </ul>
+        <el-card shadow="never" class="box-card mb-2">
+          <template #header>
+            <div class="">
+              <h5>Variables de entrada</h5>
+              <ul>
+                <li v-for="(value, key) in selectedLlmTracker.input_variables" :key="key">
+                  <b>- {{ key }}</b>:<br />
+                  <pre>{{ value }}</pre>
+                </li>
+              </ul>
+            </div>
+          </template>
+        </el-card>
+        <el-card shadow="never" class="box-card mb-2">
+          <template #header>
+            <div class="">
+              <h5>Prompt</h5>
+            </div>
+          </template>
+          <pre>{{ selectedLlmTracker.prompt }}</pre>
+        </el-card>
+        <el-card shadow="never" class="box-card mb-2">
+          <template #header>
+            <div class="">
+              <h5>Respuesta</h5>
+            </div>
+          </template>
+          <pre>{{ selectedLlmTracker.response }}</pre>
+        </el-card>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="success" @click="dialogDetails = false">
+            Listo
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, inject, watch } from 'vue';
+import axios from 'axios'
+import { ref, onMounted, computed, inject, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import config from '@/config';
-import axios from 'axios'
 
 // plugins
 const $formatDate: any = inject('$formatDate');
@@ -40,12 +124,22 @@ const $deepCopy: any = inject('$deepCopy');
 const $store = useStore();
 const $route = useRoute();
 const $router = useRouter();
+
+let messageListener: any;
 // Entity
 const assistant = ref<GenericObject>({});
 const bot = ref<GenericObject>({});
+const session_id = ref<string>('');
+const promptTokens = ref<number>(0);
+const completionTokens = ref<number>(0);
+const countApiRequests = ref<number>(0);
+const llmTracker = ref<GenericObject[]>([]);
+const selectedLlmTracker = ref<GenericObject>({});
 // Others
 const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
+const remountIframe = ref<number>(0);
+const dialogDetails = ref<boolean>(false);
 
 
 const assistant_id = computed<string>(() => {
@@ -60,9 +154,42 @@ const hostname = computed<string>(() => {
   return window.location.hostname as string;
 });
 
+const reversedAssistantId = computed<string>(() => {
+  return assistant_id.value.split('').reverse().join('')
+});
+
+watch(llmTracker, () => {
+  if (llmTracker.value.length === 0) {
+    clear()
+  }
+});
 
 onMounted(() => {
   initialize();
+
+  // Remove previous listener if exists
+  if (messageListener) {
+    window.removeEventListener('message', messageListener);
+  }
+
+  // Define and attach new listener
+  messageListener = (e: any) => {
+    const { event, payload } = e.data;
+    if (event === 'message_sent') {
+      console.log("BOT TERMINO DE ESCRIBIR...", payload);
+      session_id.value = payload.session_id
+      getTokenUsage(session_id.value)
+      getLogLlmTracker(session_id.value)
+    }
+  }
+
+  window.addEventListener('message', messageListener);
+});
+
+onUnmounted(() => {
+  if (messageListener) {
+    window.removeEventListener('message', messageListener);
+  }
 });
 
 async function initialize(): Promise<any> {
@@ -70,16 +197,47 @@ async function initialize(): Promise<any> {
     'assistantsModule/listOne',
     assistant_id.value,
   );
-  getBotInfo(1954) // id bot para demos en prod
+  getBotInfo(import.meta.env.DEV ? 3 : 1954) // id bot para demos en prod
 }
 
 async function getBotInfo(botId: number): Promise<any> {
-  console.log('🚀 Aqui *** -> botId:', botId);
   axios.get(config.DATABOT_DASHBOARD_BACKEND_URL + `/get_bot_info/${botId}`).then(res => {
     bot.value = res.data
   })
 }
 
+async function getTokenUsage(session_id: string): Promise<any> {
+  const response = await $store.dispatch('llmTrackerModule/getTotalTokens', { by: 'session', session_id: session_id })
+  if (response.ok) {
+    console.log('🚀 Aqui *** -> TOKEN USAGE:', response);
+    promptTokens.value = response.payload.prompt_tokens
+    completionTokens.value = response.payload.completion_tokens
+  }
+}
+
+async function getLogLlmTracker(session_id: string): Promise<any> {
+  llmTracker.value = await $store.dispatch("llmTrackerModule/list", { session_id })
+}
+
+const tableRowClassName = ({
+  row,
+}: { row: GenericObject }) => {
+  if (row.status_request === '200') {
+    return 'success-row'
+  } else if (row.status_request === '500') {
+    return 'danger-row'
+  }
+  return ''
+}
+
+function clear() {
+  llmTracker.value = []
+  selectedLlmTracker.value = {}
+  dialogDetails.value = false
+  promptTokens.value = 0
+  completionTokens.value = 0
+  countApiRequests.value = 0
+}
 
 </script>
 
@@ -92,7 +250,21 @@ async function getBotInfo(botId: number): Promise<any> {
 iframe {
   display: block;
   border: none;
-  height: 70vh;
-  width: 100%;
+  width: 400px !important;
+  max-height: 675px !important;
+  min-height: 240px !important;
+  height: 100% !important;
+}
+
+.el-table .danger-row {
+  --el-table-tr-bg-color: var(--el-color-danger-light-9);
+}
+
+.el-table .warning-row {
+  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+}
+
+.el-table .success-row {
+  --el-table-tr-bg-color: var(--el-color-success-light-9);
 }
 </style>
