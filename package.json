@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.2.3",
+    "@types/uuid": "^9.0.1",
     "@vitejs/plugin-vue": "^4.2.3",
     "eslint": "^8.41.0",
     "eslint-config-airbnb-typescript": "^17.0.0",

@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3030,
     },
-    base: mode === 'development' ? '/' : '/databot_ia_frontend/', // for github pages
+    base: '/', // for github pages
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

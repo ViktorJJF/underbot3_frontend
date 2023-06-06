@@ -73,7 +73,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: import.meta.env.DEV ? createWebHistory() : createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 
