@@ -5,12 +5,38 @@
         <div class="card-body">
           <div><b>Asistente: </b>{{ assistant.name }}</div>
           <div><b>assistant_id: </b>{{ assistant.assistant_id }}</div>
-          <el-button size="large" type="primary" color="#5E00D9" @click="train" :loading="isTrainLoading">Train
-            (Vectorizar)</el-button>
           <el-button :disabled="!assistant.watson_skill_id || !assistant.watson_api_key" size="large" type="primary"
             color="#5E00D9" @click="syncWithWatson" :loading="isSync">Sincronizar con
             Watson {{ !assistant.watson_skill_id || !assistant.watson_api_key ? '(Faltan credenciales)' : ''
             }}</el-button>
+          <el-button size="large" type="primary" color="#5E00D9" @click="train" :loading="isTrainLoading">Train
+            (Vectorizar)</el-button>
+          <div class="row mt-3">
+            <div class="col-sm-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="text-danger card-title">Tokens consumidos</h5>
+                  <h4 class="text-center font-30 mb-0">{{ totalTokens }}
+                  </h4>
+                  <div class="d-flex justify-content-between mt-30">
+                    <p class="">Prompt Tokens: {{ promptTokens }}</p>
+                    <p class="">Completion Tokens: {{ completionTokens }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="text-danger card-title">Total USD</h5>
+                  <h4 class="text-center font-30 mb-0"><i class="fa fa-money text-success mr-2 font-32"></i>${{
+                    ((totalTokens / 1000) * 0.002).toFixed(3) }}
+                  </h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -36,9 +62,15 @@ let orderedNodes = ref<GenericObject[]>([]);
 const isTrainLoading = ref<boolean>(false);
 const isSync = ref<boolean>(false);
 const key = ref<number>(0);
+const promptTokens = ref<number>(0);
+const completionTokens = ref<number>(0);
 
 const assistant_id = computed<string>(() => {
   return $route.query.assistant_id as string;
+});
+
+const totalTokens = computed<number>(() => {
+  return promptTokens.value + completionTokens.value
 });
 
 onMounted(() => {
@@ -50,6 +82,9 @@ async function initialize() {
     'assistantsModule/listOne',
     assistant_id.value,
   );
+  const response = await $store.dispatch('llmTrackerModule/getTotalTokens', { by: 'assistant', assistant_id: assistant_id.value })
+  promptTokens.value = response.payload.prompt_tokens
+  completionTokens.value = response.payload.completion_tokens
   key.value += 1;
 }
 

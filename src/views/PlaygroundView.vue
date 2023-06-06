@@ -12,7 +12,11 @@
               <div><b>Bot ID Databot: </b> {{ assistant.bot_id }}</div>
               <div><b>assistant_id: </b> {{ assistant.assistant_id }}</div>
               <div><b>Sesión actual: </b> {{ session_id }}</div>
-              <div>
+              <div><b>Modelo: </b> {{ session_id }}</div>
+              <el-select v-model="model" disabled placeholder="Modelo">
+                <el-option label="gpt-3.5-turbo-0301" value="gpt-3.5-turbo-0301" :disabled="true" />
+              </el-select>
+              <div class="mt-3">
                 <h5>Prompt tokens: {{ promptTokens }}</h5>
               </div>
               <div>
@@ -26,9 +30,15 @@
                 </h5>
               </div>
               <h5>Solicitudes API LLM</h5>
-              <el-table :data="llmTracker" style="width: 100%" :row-class-name="tableRowClassName">
+              <el-table :data="llmTracker" style="width: 100%">
                 <el-table-column prop="is_stream" label="Stream?" width="180" />
-                <el-table-column prop="status_request" label="Código Respuesta" width="180" />
+                <el-table-column prop="status_request" label="Código Respuesta" width="180">
+                  <template #default="scope">
+                    <span v-if="scope.row.status_request === '200'" class="badge badge-soft-success">200 OK</span>
+                    <span v-if="scope.row.status_request === '408'" class="badge badge-soft-warning">408 Timeout</span>
+                    <span v-if="scope.row.status_request === '500'" class="badge badge-soft-danger">500 Error</span>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="response_time" label="Tiempo respuesta(segs)" width="180">
                   <template #default="scope">
                     <ul>
@@ -49,11 +59,33 @@
               </el-table>
             </div>
 
-            <div class="col-xs-12 col-sm-4">
+            <div v-if="playgroundType === 'bot'" class="col-xs-12 col-sm-4">
               <el-button size="small" type="primary" @click="remountIframe += 1">Recargar iframe bot</el-button>
               <div class="preview"><iframe :key="remountIframe" class="expand"
                   :src="`${config.DATABOT_BOT_URL}/bot?id=${bot.id}&token=${bot.token}&clientPathName=${pathname}&clientHostName=${hostname}&isPlayground=true&assistant_id=${reversedAssistantId}`"></iframe>
               </div>
+            </div>
+            <div v-else class="col-xs-12 col-sm-4">
+              <el-input class="mb-2" v-model="searchProduct" placeholder="Búsqueda para recomendación" clearable
+                @keyup.enter="search" />
+              <el-button type="primary" @click="search" :loading="loadingButton">Buscar</el-button>
+              <el-table :data="products" stripe style="width: 100%">
+                <el-table-column label="Imagen" prop="image_url">
+                  <template #default="scope">
+                    <img :src="scope.row.image_url" alt="Imagen" width="100" height="100" />
+                  </template>
+                </el-table-column>
+                <el-table-column label="Nombre" prop="name">
+                  <template #default="scope">
+                    <span>{{ scope.row.name }}</span>
+                    link
+                    <div>
+                      <a :href="scope.row.product_url" target="_blank">Ver</a>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="Categorías" prop="categories" />
+              </el-table>
             </div>
           </div>
         </div>
@@ -121,6 +153,7 @@ import config from '@/config';
 // plugins
 const $formatDate: any = inject('$formatDate');
 const $deepCopy: any = inject('$deepCopy');
+const $uuid: any = inject('$uuid');
 const $store = useStore();
 const $route = useRoute();
 const $router = useRouter();
@@ -135,11 +168,15 @@ const completionTokens = ref<number>(0);
 const countApiRequests = ref<number>(0);
 const llmTracker = ref<GenericObject[]>([]);
 const selectedLlmTracker = ref<GenericObject>({});
+const products = ref<GenericObject[]>([]);
+const model = ref<string>('gpt-3.5-turbo-0301');
 // Others
 const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
 const remountIframe = ref<number>(0);
 const dialogDetails = ref<boolean>(false);
+const playgroundType = ref<string>('');
+const searchProduct = ref<string>('');
 
 
 const assistant_id = computed<string>(() => {
@@ -164,7 +201,22 @@ watch(llmTracker, () => {
   }
 });
 
+// function to be called when the route changes
+let handleRouteChange = (newRoute: any) => {
+  clear()
+  if (newRoute.fullPath.includes('recommender')) {
+    playgroundType.value = 'recommender'
+    session_id.value = $uuid()
+  } else {
+    playgroundType.value = 'bot'
+  }
+};
+
+// watch for changes in the route
+watch($route, handleRouteChange, { deep: true, immediate: true });
+
 onMounted(() => {
+  // check current route
   initialize();
 
   // Remove previous listener if exists
@@ -184,6 +236,8 @@ onMounted(() => {
   }
 
   window.addEventListener('message', messageListener);
+
+
 });
 
 onUnmounted(() => {
@@ -219,17 +273,6 @@ async function getLogLlmTracker(session_id: string): Promise<any> {
   llmTracker.value = await $store.dispatch("llmTrackerModule/list", { session_id })
 }
 
-const tableRowClassName = ({
-  row,
-}: { row: GenericObject }) => {
-  if (row.status_request === '200') {
-    return 'success-row'
-  } else if (row.status_request === '500') {
-    return 'danger-row'
-  }
-  return ''
-}
-
 function clear() {
   llmTracker.value = []
   selectedLlmTracker.value = {}
@@ -237,6 +280,17 @@ function clear() {
   promptTokens.value = 0
   completionTokens.value = 0
   countApiRequests.value = 0
+}
+
+async function search() {
+  if (searchProduct.value.length > 0) {
+    loadingButton.value = true
+    const result = await $store.dispatch('productsModule/search', { query: searchProduct.value, session_id: session_id.value })
+    products.value = result.payload
+    getTokenUsage(session_id.value)
+    getLogLlmTracker(session_id.value)
+    loadingButton.value = false
+  }
 }
 
 </script>

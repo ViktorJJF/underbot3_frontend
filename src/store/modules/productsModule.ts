@@ -103,6 +103,22 @@ const module = {
           });
       });
     },
+    search(
+      { commit }: { commit: any; state: any },
+      { query, session_id }: { query: string; session_id: string },
+    ) {
+      return new Promise((resolve, reject) => {
+        api
+          .search(getAssistantIdFromUrl(), query, session_id)
+          .then((res) => {
+            commit('list', res.data);
+            resolve(res.data);
+          })
+          .catch((error) => {
+            handleError(error, commit, reject);
+          });
+      });
+    },
   },
   mutations: {
     list(state: GenericObject, data: GenericObject) {

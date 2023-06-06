@@ -63,6 +63,11 @@ const routes = [
         name: 'Playground',
         component: () => import('@/views/PlaygroundView.vue'),
       },
+      {
+        path: '/assistants/playground/recommender',
+        name: 'PlaygroundRecommender',
+        component: () => import('@/views/PlaygroundView.vue'),
+      },
     ],
   },
 ];

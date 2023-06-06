@@ -10,6 +10,7 @@ import 'element-plus/dist/index.css';
 // plugins
 import moshaToasTify from '@/plugins/moshaToastify';
 import dateFns from '@/plugins/dateFns';
+import uuid from '@/plugins/uuid';
 import deepCopy from '@/plugins/deepCopy';
 
 // import styles
@@ -21,5 +22,6 @@ const app = createApp(App);
 app.use(ElementPlus);
 app.use(moshaToasTify);
 app.use(dateFns);
+app.use(uuid);
 app.use(deepCopy);
 app.use(router).use(store).mount('#app');

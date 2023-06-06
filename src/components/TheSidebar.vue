@@ -19,6 +19,7 @@
                 <i class="bx bx-home-heart"></i><span>Asistentes</span>
               </router-link>
             </li>
+            <div class="horizontal-line"></div>
             <li v-if="assistant_id">
               <router-link :to="`/assistants/statistics?assistant_id=${assistant_id}`" class="nav-link"
                 active-class="active">
@@ -54,11 +55,21 @@
                 <i class="bx bxs-cart"></i><span>Productos</span>
               </router-link>
             </li>
-            <li v-if="assistant_id">
-              <router-link :to="`/assistants/playground?assistant_id=${assistant_id}`" class="nav-link"
-                active-class="active">
+            <li v-if="assistant_id" class="treeview menu-open" @click.self="toggleCryptoMenu">
+              <a href="javascript:void(0)">
                 <i class="fa fa-flask"></i><span>Playground</span>
-              </router-link>
+                <i class="fa fa-angle-right"></i>
+              </a>
+              <ul class="treeview-menu" :style="cryptoMenuStyle">
+                <router-link :to="`/assistants/playground?assistant_id=${assistant_id}`" class="nav-link"
+                  active-class="active">
+                  <i class="fa fa-flask"></i><span>Bot</span>
+                </router-link>
+                <router-link :to="`/assistants/playground/recommender?assistant_id=${assistant_id}`" class="nav-link"
+                  active-class="active">
+                  <i class="fa fa-flask"></i><span>Recomendador</span>
+                </router-link>
+              </ul>
             </li>
           </ul>
         </nav>
@@ -69,7 +80,7 @@
 
 <script setup lang="ts">
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const $route = useRoute();
@@ -79,11 +90,25 @@ const assistant_id = computed<string>(() => {
   return $route.query.assistant_id as string;
 });
 
+const cryptoMenuVisible = ref(true);
+const cryptoMenuStyle = ref('display: block;');
+
+const toggleCryptoMenu = () => {
+  cryptoMenuVisible.value = !cryptoMenuVisible.value;
+  cryptoMenuStyle.value = cryptoMenuVisible.value ? 'display: block;' : 'display: none;';
+};
+
 </script>
 
 <style scoped>
 .nav-link.active {
   background-color: #5E00D9;
   color: #ffffff;
+}
+
+.horizontal-line {
+  width: 100%;
+  height: 0.5px;
+  background-color: grey;
 }
 </style>

@@ -32,4 +32,15 @@ export default {
       config.BACKEND_BASE_URL + `/api/products/${assistant_id}/train_llm`,
     );
   },
+  search(
+    assistant_id: string,
+    query: string,
+    session_id: string,
+  ): Promise<any> {
+    return axios.post(config.BACKEND_BASE_URL + `/api/products/search`, {
+      assistant_id,
+      query,
+      session_id,
+    });
+  },
 };
