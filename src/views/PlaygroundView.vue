@@ -251,7 +251,7 @@ async function initialize(): Promise<any> {
     'assistantsModule/listOne',
     assistant_id.value,
   );
-  getBotInfo(import.meta.env.DEV ? 3 : 1954) // id bot para demos en prod
+  getBotInfo(1954) // id bot para demos en prod
 }
 
 async function getBotInfo(botId: number): Promise<any> {
