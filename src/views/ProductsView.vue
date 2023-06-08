@@ -62,6 +62,8 @@
                   </div>
                 </template>
               </el-table-column>
+              <el-table-column label="Disponible" prop="available" />
+
               <el-table-column align="right">
                 <template #header>
                   <el-input v-model="search" placeholder="Búsquedas..." clearable />

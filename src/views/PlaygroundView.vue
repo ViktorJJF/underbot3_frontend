@@ -69,6 +69,7 @@
               <el-input class="mb-2" v-model="searchProduct" placeholder="Búsqueda para recomendación" clearable
                 @keyup.enter="search" />
               <el-button type="primary" @click="search" :loading="loadingButton">Buscar</el-button>
+              <el-checkbox class="ml-3" v-model="useLlm">{{ useLlm ? 'Usar LLM para búsqueda' : 'Sin LLM' }}</el-checkbox>
               <el-table :data="products" stripe style="width: 100%">
                 <el-table-column label="Imagen" prop="image_url">
                   <template #default="scope">
@@ -85,6 +86,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="Categorías" prop="categories" />
+                <el-table-column label="Disponible" prop="available" />
               </el-table>
             </div>
           </div>
@@ -170,6 +172,7 @@ const llmTracker = ref<GenericObject[]>([]);
 const selectedLlmTracker = ref<GenericObject>({});
 const products = ref<GenericObject[]>([]);
 const model = ref<string>('gpt-3.5-turbo-0301');
+const useLlm = ref<boolean>(true);
 // Others
 const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
@@ -285,7 +288,7 @@ function clear() {
 async function search() {
   if (searchProduct.value.length > 0) {
     loadingButton.value = true
-    const result = await $store.dispatch('productsModule/search', { query: searchProduct.value, session_id: session_id.value })
+    const result = await $store.dispatch('productsModule/search', { query: searchProduct.value, session_id: session_id.value, useLlm: useLlm.value })
     products.value = result.payload
     getTokenUsage(session_id.value)
     getLogLlmTracker(session_id.value)

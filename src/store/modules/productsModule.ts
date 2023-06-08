@@ -105,11 +105,15 @@ const module = {
     },
     search(
       { commit }: { commit: any; state: any },
-      { query, session_id }: { query: string; session_id: string },
+      {
+        query,
+        session_id,
+        useLlm,
+      }: { query: string; session_id: string; useLlm: boolean },
     ) {
       return new Promise((resolve, reject) => {
         api
-          .search(getAssistantIdFromUrl(), query, session_id)
+          .search(getAssistantIdFromUrl(), query, session_id, useLlm)
           .then((res) => {
             commit('list', res.data);
             resolve(res.data);
