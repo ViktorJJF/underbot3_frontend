@@ -36,11 +36,13 @@ export default {
     assistant_id: string,
     query: string,
     session_id: string,
+    useLlm: boolean,
   ): Promise<any> {
     return axios.post(config.BACKEND_BASE_URL + `/api/products/search`, {
       assistant_id,
       query,
       session_id,
+      use_llm:useLlm
     });
   },
 };
