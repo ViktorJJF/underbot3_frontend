@@ -62,7 +62,7 @@
             <div v-if="playgroundType === 'bot'" class="col-xs-12 col-sm-4">
               <el-button size="small" type="primary" @click="remountIframe += 1">Recargar iframe bot</el-button>
               <div class="preview"><iframe :key="remountIframe" class="expand"
-                  :src="`${config.DATABOT_BOT_URL}/bot?id=${bot.id}&token=${bot.token}&clientPathName=${pathname}&clientHostName=${hostname}&isPlayground=true&assistant_id=${reversedAssistantId}`"></iframe>
+                  :src="`${config.DATABOT_BOT_URL}/bot?id=${bot.id}&token=${bot.token}&clientPathName=${pathname}&clientHostName=${hostname}&isPlayground=true&assistant_id=${reversedAssistantId}&playground_bot_id=${assistant.bot_id}`"></iframe>
               </div>
             </div>
             <div v-else class="col-xs-12 col-sm-4">
