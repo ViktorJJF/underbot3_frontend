@@ -24,14 +24,14 @@
                                         <div class="form-group">
                                             <label class="float-left" for="emailaddress">Email</label>
                                             <input class="form-control" type="email" id="emailaddress" v-model="user.email"
-                                                required="" placeholder="Enter your email">
+                                                requiredplaceholder="Enter your email">
                                         </div>
 
                                         <div class="form-group">
                                             <a href="forget-password.html" class="text-dark float-right"></a>
                                             <label class="float-left" for="password">Password</label>
                                             <input @keyup.enter="login" v-model="user.password" class="form-control"
-                                                type="password" required="" id="password" placeholder="Enter your password">
+                                                type="password" requiredid="password" placeholder="Enter your password">
                                         </div>
 
 
