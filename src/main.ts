@@ -19,6 +19,11 @@ import '@/assets/scss/main.scss';
 
 const app = createApp(App);
 
+const isTokenSet = store.getters['authModule/isTokenSet'];
+if (isTokenSet) {
+  store.dispatch('authModule/autoLogin');
+}
+
 app.use(ElementPlus);
 app.use(moshaToasTify);
 app.use(dateFns);
