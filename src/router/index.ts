@@ -3,11 +3,18 @@ import {
   createWebHistory,
   createWebHashHistory,
 } from 'vue-router';
+import store from '@/store';
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/Login.vue'),
+  },
+  {
     path: '/',
-    name: 'AdminLayout',
+    name: 'dashboard',
+    meta: { requiresAuth: true },
     component: () => import('@/layouts/AdminLayout.vue'),
     redirect: {
       name: 'Assistants',
@@ -75,6 +82,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  // checkForUpdates();
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const isTokenSet = store.getters['authModule/isTokenSet'];
+  if (requiresAuth && !isTokenSet) {
+    return next({ name: 'login' });
+  } // checkIfTokenNeedsRefresh(); //
+  // store.commit('successModule/success', null); //
+  // store.commit('errorModule/error', null);
+  return next();
 });
 
 export default router;
