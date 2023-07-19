@@ -9,8 +9,12 @@
             color="#5E00D9" @click="syncWithWatson" :loading="isSync">Sincronizar con
             Watson {{ !assistant.watson_skill_id || !assistant.watson_api_key ? '(Faltan credenciales)' : ''
             }}</el-button>
-          <el-button size="large" type="primary" color="#5E00D9" @click="train" :loading="isTrainLoading">Train
+          <el-button class="ml-3" size="large" type="primary" color="#5E00D9" @click="train"
+            :loading="isTrainLoading">Train
             (Vectorizar)</el-button>
+          <el-button size="large" type="primary" color="#5E00D9" @click="downloadJson" :loading="isTrainLoading">Descargar
+            JSON</el-button>
+          <a id="downloadLink" style="display: none">Download</a>
           <div class="row mt-3">
             <div class="col-sm-3">
               <div class="card">
@@ -44,12 +48,16 @@
 </template>
 
 <script lang="ts" setup>
+import axios from 'axios'
+
+import config from '@/config';
 import { onMounted, ref, inject, computed, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import type { GenericObject } from '@/types/GenericObject';
 
 // plugins
+
 const $formatDate: any = inject('$formatDate');
 const $store = useStore();
 const $route = useRoute();
@@ -109,6 +117,45 @@ async function syncWithWatson() {
   } finally {
     isSync.value = false;
   }
+}
+
+async function downloadJson() {
+  const response = await axios.get(
+    config.BACKEND_BASE_URL + '/api/assistants/' + assistant_id.value, {
+    params: {
+      export: true
+    }
+  }
+  )
+  const assistantJson = response.data.payload
+  // sanitize json to upload to watson
+  const dialog_nodes = assistantJson.dialog_nodes
+  for (const dialog_node of dialog_nodes) {
+    const type = dialog_node.type
+    if (type !== 'frame' || type !== 'standard') {
+      delete dialog_node['disambiguation_opt_out']
+    }
+  }
+  assistantJson.dialog_nodes = dialog_nodes
+  // start downloading json
+  const blob = new Blob([JSON.stringify(assistantJson)], { type: 'application/json' }); // create a blob object
+  const url = URL.createObjectURL(blob); // create a URL for that blob
+
+  // get the download link element
+  const link = document.getElementById('downloadLink') as HTMLAnchorElement;
+
+  link.href = url;
+  link.download = `${assistant.value.name}.json`; // specify the filename for the download
+  link.style.display = 'block'; // make it visible
+
+  // trigger click event programmatically
+  link.click();
+
+  // After a delay, clean up the URL we created. This also hides the link again.
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    link.style.display = 'none';
+  }, 100);
 }
 </script>
 
