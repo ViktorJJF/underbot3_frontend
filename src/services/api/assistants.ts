@@ -42,6 +42,7 @@ export default {
     return axios.post(
       config.BACKEND_BASE_URL +
         `/api/assistants/${assistant_id}/generate_from_watson`,
+      {},
     );
   },
 };
