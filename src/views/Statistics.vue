@@ -9,10 +9,12 @@
             color="#5E00D9" @click="syncWithWatson" :loading="isSync">Sincronizar con
             Watson {{ !assistant.watson_skill_id || !assistant.watson_api_key ? '(Faltan credenciales)' : ''
             }}</el-button>
-          <el-button class="ml-3" size="large" type="primary" color="#5E00D9" @click="train"
+          <el-button class="ml-3" size="large" type="primary" color="#5E00D9" @click="train(null)"
             :loading="isTrainLoading">Train
             (Vectorizar)</el-button>
-          <el-button size="large" type="primary" color="#5E00D9" @click="downloadJson" :loading="isTrainLoading">Descargar
+          <el-button class="ml-3" size="large" type="primary" color="#5E00D9" @click="train(['knowledge'])"
+            :loading="isTrainLoading">Train solo FAQs</el-button>
+          <el-button size="large" type="primary" color="#5E00D9" @click="downloadJson">Descargar
             JSON</el-button>
           <a id="downloadLink" style="display: none">Download</a>
           <div class="row mt-3">
@@ -96,10 +98,10 @@ async function initialize() {
   key.value += 1;
 }
 
-async function train() {
+async function train(modules_to_train: string[] | null) {
   try {
     isTrainLoading.value = true;
-    await $store.dispatch("assistantsModule/train", assistant_id.value)
+    await $store.dispatch("assistantsModule/train", { assistant_id: assistant_id.value, modules_to_train })
   } catch (error) {
     console.error(error)
   } finally {

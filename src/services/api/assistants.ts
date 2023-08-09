@@ -32,9 +32,10 @@ export default {
       config.BACKEND_BASE_URL + `/api/assistants/${assistant_id}/nodes_handler`,
     );
   },
-  train(assistant_id: string): Promise<any> {
+  train(assistant_id: string, modules_to_train: string[]): Promise<any> {
     return axios.post(
       config.BACKEND_BASE_URL + `/api/assistants/${assistant_id}/train_llm`,
+      { modules_to_train },
     );
   },
   generateFromWatson(assistant_id: string): Promise<any> {

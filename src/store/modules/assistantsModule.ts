@@ -117,10 +117,13 @@ const module = {
           });
       });
     },
-    train({ commit }: { commit: any; state: any }, assistant_id: string) {
+    train(
+      { commit }: { commit: any; state: any },
+      { assistant_id, modules_to_train }: any,
+    ) {
       return new Promise((resolve, reject) => {
         api
-          .train(assistant_id)
+          .train(assistant_id, modules_to_train)
           .then(() => {
             buildSuccess('Entrenamiento finalizado con éxito');
             resolve(null);
