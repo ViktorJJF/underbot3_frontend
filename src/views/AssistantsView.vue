@@ -3,11 +3,10 @@
     <div class="col-12">
       <div class="card box-margin">
         <div class="card-body">
-          <button type="button" class="btn btn-primary mb-2 mr-2"
-            @click="
-              close();
-            dialog = true;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ">
+          <button type="button" class="btn btn-primary mb-2 mr-2" @click="
+            close();
+          dialog = true;
+          ">
             Crear Asistente
           </button>
           <div class="row my-3">
@@ -87,6 +86,12 @@
         <el-form-item label="Watson api_key">
           <el-input v-model="editedItem.watson_api_key" />
         </el-form-item>
+        <el-form-item label="Modules">
+          <el-select-v2 v-model="editedItem.modules"
+            :options="[{ value: 'knowledge', label: 'knowledge' }, { value: 'products', label: 'products' }, { value: 'pakstores', label: 'pakstores' }, { value: 'order_tracking', label: 'order_tracking' }]"
+            placeholder="Selecciona los módulos" style="width: 240px" multiple />
+        </el-form-item>
+
       </el-form>
       <template #footer>
         <span class="dialog-footer">
