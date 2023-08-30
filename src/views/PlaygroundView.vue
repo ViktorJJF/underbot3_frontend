@@ -152,6 +152,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import config from '@/config';
 
+const isDev: boolean = import.meta.env.DEV
 // plugins
 const $formatDate: any = inject('$formatDate');
 const $deepCopy: any = inject('$deepCopy');
@@ -254,7 +255,7 @@ async function initialize(): Promise<any> {
     'assistantsModule/listOne',
     assistant_id.value,
   );
-  getBotInfo(1954) // id bot para demos en prod
+  getBotInfo(isDev ? 1 : 1954) // id bot para demos en prod
 }
 
 async function getBotInfo(botId: number): Promise<any> {
