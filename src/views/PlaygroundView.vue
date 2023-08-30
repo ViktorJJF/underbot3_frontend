@@ -3,7 +3,7 @@
     <div class="col-12">
       <div class="card box-margin">
         <div class="card-body">
-          <div class="row" v-if="!bot">
+          <div class="row" v-if="Object.keys(bot).length === 0">
             <h3>Bot no existe</h3>
           </div>
           <div class="row" v-else>
