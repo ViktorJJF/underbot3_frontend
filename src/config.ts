@@ -1,5 +1,8 @@
 // const isDev: boolean = import.meta.env.DEV;
 const isDev: boolean = import.meta.env.DEV;
+const isDevLocal: boolean = window.location.hostname === 'localhost';
+console.log('🚀 Aqui *** -> isDev ENV VARIABLE:', isDev);
+console.log('🚀 Aqui *** -> isDevLocal :', isDevLocal);
 
 const BACKEND_BASE_URL: string = isDev
   ? 'http://localhost:9090'
@@ -16,4 +19,5 @@ export default {
   BACKEND_BASE_URL,
   DATABOT_BOT_URL,
   DATABOT_DASHBOARD_BACKEND_URL,
+  isDev,
 };

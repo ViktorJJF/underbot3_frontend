@@ -152,7 +152,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import config from '@/config';
 
-const isDev: boolean = import.meta.env.DEV
+const isDev: boolean = config.isDev
 // plugins
 const $formatDate: any = inject('$formatDate');
 const $deepCopy: any = inject('$deepCopy');
