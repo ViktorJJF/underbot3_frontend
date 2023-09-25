@@ -72,7 +72,9 @@
                         <div v-if="message.intents?.length"><b>Intenciones LLM: </b>{{ message.intents }}</div>
                         <div v-if="message.intent_semantic?.length"><b>Intent Semantic Search: </b>{{
                             message.intent_semantic }}</div>
-                        <div v-if="message.entities?.length"><b>Entidades: </b>{{ message.entities.map(el => el.entity) }}
+                        <div v-if="message.entities?.length"><b>Entidades: </b>{{ //@ts-ignore
+                            message.entities.map(el => el.entity)
+                        }}
                         </div>
 
                     </div>
