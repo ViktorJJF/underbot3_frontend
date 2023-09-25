@@ -69,8 +69,8 @@
                     <div v-else class="mb-3" v-for="(message, idy) in messages" :key="idy">
                         <div><b>De: </b>{{ message.from_ }}</div>
                         <div><b>Texto: </b>{{ message.text || 'PARTE FLUJO DIALOGO' }}</div>
-                        <div v-if="message.hasOwnProperty('is_generated_llm')"><b>LLM?: </b>{{ message.is_generated_llm ?
-                            'Sí' : 'No' }}</div>
+                        <div v-if="message.hasOwnProperty('is_generated_llm')"><b>LLM?: </b>{{ message.is_generated_llm }}
+                        </div>
                         <div v-if="message.tool"><b>Tool: </b>{{ message.tool }}</div>
                         <div v-if="message.intents?.length"><b>Intenciones LLM: </b>{{ message.intents }}</div>
                         <div v-if="message.intent_semantic?.length"><b>Intent Semantic Search: </b>{{
