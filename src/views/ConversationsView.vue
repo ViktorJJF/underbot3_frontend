@@ -62,12 +62,15 @@
         <div class="col-sm-5">
             <div class="card box-margin">
                 <div class="card-body">
+                    <div v-show="selectedSession"><b>session_id: </b> {{ selectedSession }}</div>
+                    <div class="horizontal-line mb-3"></div>
                     <el-progress v-if="loadingMessages" :percentage="100" status="success" :indeterminate="true"
                         :duration="3" />
                     <div v-else class="mb-3" v-for="(message, idy) in messages" :key="idy">
                         <div><b>De: </b>{{ message.from_ }}</div>
                         <div><b>Texto: </b>{{ message.text || 'PARTE FLUJO DIALOGO' }}</div>
-                        <div v-if="message.is_generated_llm"><b>LLM?: </b>{{ message.is_generated_llm ? 'Sí' : 'No' }}</div>
+                        <div v-if="message.hasOwnProperty('is_generated_llm')"><b>LLM?: </b>{{ message.is_generated_llm ?
+                            'Sí' : 'No' }}</div>
                         <div v-if="message.tool"><b>Tool: </b>{{ message.tool }}</div>
                         <div v-if="message.intents?.length"><b>Intenciones LLM: </b>{{ message.intents }}</div>
                         <div v-if="message.intent_semantic?.length"><b>Intent Semantic Search: </b>{{
@@ -113,6 +116,7 @@ const loadingButton = ref<boolean>(false);
 const loadingMessages = ref<boolean>(false);
 const delayTimer = ref<any>(null);
 const editedIndex = ref<number>(-1);
+const selectedSession = ref<string>('');
 
 const dialog = ref<boolean>(false);
 
@@ -154,6 +158,7 @@ async function close() {
 }
 
 function getMessages(session_id: string) {
+    selectedSession.value = session_id
     loadingMessages.value = true
     messagesService.list({ session_id, sort: 'created_at', order: 'asc' }, assistant_id.value).then((response) => {
         messages.value = response.data.payload
