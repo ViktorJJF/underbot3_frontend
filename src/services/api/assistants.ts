@@ -45,4 +45,27 @@ export default {
       {},
     );
   },
+  testSemanticSearch(
+    assistant_id: string,
+    message: string,
+    { retriever_type, max_documents }: GenericObject = {},
+  ): Promise<any> {
+    return axios.post(
+      config.BACKEND_BASE_URL +
+        `/api/assistants/${assistant_id}/test_semantic_search`,
+      { message, retriever_type, max_documents },
+    );
+  },
+
+  vectorizeCustomText(
+    assistant_id: string,
+    text: string,
+    text_splitter: string,
+  ): Promise<any> {
+    return axios.post(
+      config.BACKEND_BASE_URL +
+        `/api/assistants/${assistant_id}/vectorize_custom_text`,
+      { text, text_splitter },
+    );
+  },
 };

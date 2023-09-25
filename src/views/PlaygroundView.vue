@@ -99,6 +99,7 @@
       <el-form label-position="top" label-width="100px">
         <h5>Consumo de tokens: </h5>
         <ul class="mb-3">
+          <li>Modelo: {{ selectedLlmTracker.model }} </li>
           <li>prompt_tokens: {{ selectedLlmTracker.prompt_tokens }} </li>
           <li>completion_tokens: {{ selectedLlmTracker.completion_tokens }} </li>
           <li>Total: {{ selectedLlmTracker.total_tokens }} </li>

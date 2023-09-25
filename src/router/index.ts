@@ -51,6 +51,11 @@ const routes = [
         component: () => import('@/views/IntentsView.vue'),
       },
       {
+        path: '/assistants/conversations',
+        name: 'ConversationsView',
+        component: () => import('@/views/ConversationsView.vue'),
+      },
+      {
         path: '/assistants/entities',
         name: 'Entities',
         component: () => import('@/views/EntitiesView.vue'),
@@ -74,6 +79,11 @@ const routes = [
         path: '/assistants/playground/recommender',
         name: 'PlaygroundRecommender',
         component: () => import('@/views/PlaygroundView.vue'),
+      },
+      {
+        path: '/assistants/playground/semantic_search',
+        name: 'SemanticSearch',
+        component: () => import('@/views/SemanticSearch.vue'),
       },
     ],
   },

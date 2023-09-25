@@ -27,6 +27,12 @@
               </router-link>
             </li>
             <li v-if="assistant_id">
+              <router-link :to="`/assistants/conversations?assistant_id=${assistant_id}`" class="nav-link"
+                active-class="active">
+                <i class="bx bx-list-ul"></i><span>Conversaciones usuarios</span>
+              </router-link>
+            </li>
+            <li v-if="assistant_id">
               <router-link :to="`/assistants/intents?assistant_id=${assistant_id}`" class="nav-link"
                 active-class="active">
                 <i class="bx bx-list-ul"></i><span>Intenciones</span>
@@ -68,6 +74,10 @@
                 <router-link :to="`/assistants/playground/recommender?assistant_id=${assistant_id}`" class="nav-link"
                   active-class="active">
                   <i class="fa fa-flask"></i><span>Recomendador</span>
+                </router-link>
+                <router-link :to="`/assistants/playground/semantic_search?assistant_id=${assistant_id}`" class="nav-link"
+                  active-class="active">
+                  <i class="fa fa-flask"></i><span>Semantic Search</span>
                 </router-link>
               </ul>
             </li>
