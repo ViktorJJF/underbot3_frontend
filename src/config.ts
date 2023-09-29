@@ -3,12 +3,11 @@ const isDev: boolean = window.location.hostname === 'localhost';
 
 const BACKEND_BASE_URL: string = isDev
   ? 'http://localhost:9090'
-  : 'https://rasaia.databot.cl';
+  : 'https://rasaia2.databot.cl';
 
-const DATABOT_BOT_URL: string =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : 'https://databot-api.herokuapp.com';
+const DATABOT_BOT_URL: string = isDev
+  ? 'http://localhost:8000'
+  : 'https://databot-api.herokuapp.com';
 const DATABOT_DASHBOARD_BACKEND_URL: string = isDev
   ? 'http://localhost:3000'
   : 'https://api.databot.cl';
