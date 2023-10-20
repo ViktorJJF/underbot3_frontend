@@ -28,8 +28,8 @@ const module = {
           .login(email, password)
           .then((response) => {
             if (response.status === 200) {
-              const user = response.data.data;
-              const token = response.headers['access-token'];
+              const user = response.data.user;
+              const token = response.data.token;
               localStorage.setItem('user', JSON.stringify(user));
               localStorage.setItem('token', token);
               commit('saveUser', user);

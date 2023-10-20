@@ -1,7 +1,6 @@
-import { isPast, format } from 'date-fns';
+import { isPast } from 'date-fns';
 import { createToast } from 'mosha-vue-toastify';
 import store from '@/store';
-import router from '@/router';
 import type { GenericObject } from '@/types/GenericObject';
 
 export const formatErrorMessages = (
@@ -74,7 +73,6 @@ export const buildPayloadPagination = (
 
 // Catches error connection or any other error (checks if error.response exists)
 export const handleError = (error: GenericObject, commit: any, reject: any) => {
-  let errMsg = '';
   // Resets errors in store
   commit('loadingModule/showLoading', false, { root: true });
   console.log('sucedio un error....');
@@ -108,12 +106,12 @@ export const handleError = (error: GenericObject, commit: any, reject: any) => {
   return 0;
 };
 
-export const buildSuccess = (msg: String) => {
+export const buildSuccess = (msg: string) => {
   createToast(msg, { timeout: 3000, type: 'success' });
 };
 
 export const buildAlert = (
-  msg: String,
+  msg: string,
   type: any = 'success',
   timeout = 3000,
 ) => {
@@ -143,7 +141,7 @@ export const checkIfTokenNeedsRefresh = () => {
 export const buildQueryWithPagination = (query: GenericObject) => {
   let queryWithPagination = {};
   if (query && query.page) {
-    let { page, search, fieldsToSearch } = query;
+    const { page, search, fieldsToSearch } = query;
     queryWithPagination = buildPayloadPagination(
       {
         page,
@@ -156,9 +154,4 @@ export const buildQueryWithPagination = (query: GenericObject) => {
     delete query['search'];
   }
   return { ...queryWithPagination, ...query };
-};
-
-export const getAssistantIdFromUrl = (): string => {
-  const params = new URLSearchParams(window.location.href.split('?')[1]);
-  return params.get('assistant_id') as string;
 };

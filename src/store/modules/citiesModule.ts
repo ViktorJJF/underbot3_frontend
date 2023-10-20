@@ -1,16 +1,15 @@
-import api from '@/services/api/documents';
+import api from '@/services/api/cities';
 import {
   buildSuccess,
   handleError,
   buildQueryWithPagination,
-  getAssistantIdFromUrl,
 } from '@/utils/utils';
 import type { GenericObject } from '@/types/GenericObject';
 
 const module = {
   namespaced: true,
   state: {
-    documents: [],
+    cities: [],
     total: 0,
     totalPages: 0,
   },
@@ -19,47 +18,52 @@ const module = {
       { commit, state }: { commit: any; state: any },
       query: GenericObject = {},
     ) {
-      let finalQuery: GenericObject = buildQueryWithPagination(query);
+      const finalQuery: GenericObject = buildQueryWithPagination(query);
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .list(finalQuery, getAssistantIdFromUrl())
-          .then((response) => {
+          .list(finalQuery)
+          .then((response: any) => {
             commit('loadingModule/showLoading', false, { root: true });
             commit('list', response.data.payload);
             commit('totalItems', response.data.totalDocs);
             commit('totalPages', response.data.totalPages);
             resolve(response.data.payload);
           })
-          .catch((error) => {
+          .catch((error: any) => {
             handleError(error, commit, reject);
           });
       });
     },
-    listOne({ commit, state }: { commit: any; state: any }, id: string) {
+    listOne(
+      { commit, state }: { commit: any; state: any },
+      id: string,
+    ) {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
         api
-          .listOne(id, getAssistantIdFromUrl())
-          .then((response) => {
+          .listOne(id)
+          .then((response: any) => {
             commit('loadingModule/showLoading', false, { root: true });
             resolve(response.data.payload);
           })
-          .catch((error) => {
+          .catch((error: any) => {
             handleError(error, commit, reject);
           });
       });
     },
     create({ commit }: { commit: any; state: any }, data: GenericObject) {
       return new Promise((resolve, reject) => {
+        commit('loadingModule/showLoading', true, { root: true });
         api
-          .create(data, getAssistantIdFromUrl())
-          .then((res) => {
+          .create(data)
+          .then((res: any) => {
+            commit('loadingModule/showLoading', false, { root: true });
             buildSuccess('Registro guardado con éxito');
             commit('create', res.data.payload);
             resolve(res.data.payload);
           })
-          .catch((error) => {
+          .catch((error: any) => {
             handleError(error, commit, reject);
           });
       });
@@ -69,9 +73,11 @@ const module = {
       { id, data, notifyUser = true }: any = {},
     ) {
       return new Promise((resolve, reject) => {
+        commit('loadingModule/showLoading', true, { root: true });
         api
-          .update(id, data, getAssistantIdFromUrl())
+          .update(id, data)
           .then((res) => {
+            commit('loadingModule/showLoading', false, { root: true });
             if (notifyUser) {
               buildSuccess('Registro actualizado con éxito');
             }
@@ -88,9 +94,11 @@ const module = {
     },
     delete({ commit }: { commit: any; state: any }, id: string) {
       return new Promise((resolve, reject) => {
+        commit('loadingModule/showLoading', true, { root: true });
         api
-          .delete(id, getAssistantIdFromUrl())
+          .delete(id)
           .then(() => {
+            commit('loadingModule/showLoading', false, { root: true });
             buildSuccess('Registro eliminado con éxito');
             commit('delete', id);
             resolve(null);
@@ -103,7 +111,7 @@ const module = {
   },
   mutations: {
     list(state: GenericObject, data: GenericObject) {
-      state.documents = data;
+      state.cities = data;
     },
     totalItems(state: GenericObject, data: GenericObject) {
       state.total = data;
@@ -112,24 +120,24 @@ const module = {
       state.totalPages = data;
     },
     create(state: GenericObject, data: GenericObject) {
-      state.documents.push(data);
+      state.cities.push(data);
     },
     update(
       state: GenericObject,
       { id, data }: { id: string; data: GenericObject },
     ) {
-      let indexToUpdate = state.documents.findIndex(
+      const indexToUpdate = state.cities.findIndex(
         (el: GenericObject) => el._id == id,
       );
-      state.documents.splice(indexToUpdate, 1, {
+      state.cities.splice(indexToUpdate, 1, {
         ...data,
       });
     },
     delete(state: GenericObject, id: string) {
-      let indexToDelete = state.documents.findIndex(
+      const indexToDelete = state.cities.findIndex(
         (el: GenericObject) => el._id == id,
       );
-      state.documents.splice(indexToDelete, 1);
+      state.cities.splice(indexToDelete, 1);
       state.total -= 1;
     },
   },
