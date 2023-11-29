@@ -1,62 +1,96 @@
 <template>
-  <!-- Sidemenu Area -->
-  <div class="ecaps-sidemenu-area">
-    <!-- Desktop Logo -->
-    <div class="ecaps-logo">
-      <a href="/"
-        ><img
-          class="desktop-logo"
-          src="https://ia.databot.cl/img/brand/0-default.svg"
-          alt="Desktop Logo" />
-        <img
-          class="small-logo"
-          src="https://ia.databot.cl/img/brand/0-default.svg"
-          alt="Mobile Logo"
-      /></a>
-    </div>
+  <div class="d-flex flex-nowrap">
+    <h1 class="visually-hidden">Sidebars examples</h1>
 
-    <!-- Side Nav -->
-    <div id="ecapsSideNav" class="ecaps-sidenav">
-      <!-- Side Menu Area -->
-      <div class="side-menu-area">
-        <!-- Sidebar Menu -->
-        <nav>
-          <ul class="sidebar-menu" data-widget="tree">
-            <li>
-              <router-link
-                :to="{ name: 'Cities' }"
-                class="nav-link"
-                active-class="active"
-              >
-                <i class="bx bx-home-heart"></i><span>Ciudades</span>
-              </router-link>
-            </li>
-            <div class="horizontal-line"></div>
-          </ul>
-        </nav>
+    <div
+      class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark"
+      style="width: 280px"
+    >
+      <a
+        href="/"
+        class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+      >
+        <svg class="bi pe-none me-2" width="40" height="32">
+          <use xlink:href="#bootstrap"></use>
+        </svg>
+        <span class="fs-4">Underbot 3</span>
+      </a>
+      <hr />
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li v-for="(view, idx) in views" :key="idx" class="nav-item">
+          <router-link
+            :to="{ name: view.name }"
+            class="nav-link"
+            :class="{ active: $route.name === view.name }"
+            aria-current="page"
+            ><svg class="bi pe-none me-2" width="16" height="16">
+              <use xlink:href="#home"></use>
+            </svg>
+            {{ view.label }}</router-link
+          >
+        </li>
+      </ul>
+      <hr />
+      <div class="dropdown">
+        <a
+          href="#"
+          class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <img
+            src="https://github.com/mdo.png"
+            alt=""
+            width="32"
+            height="32"
+            class="rounded-circle me-2"
+          />
+          <strong>mdo</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="#">New project...</a></li>
+          <li><a class="dropdown-item" href="#">Settings</a></li>
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><hr class="dropdown-divider" /></li>
+          <li><a class="dropdown-item" href="#">Sign out</a></li>
+        </ul>
       </div>
     </div>
+    <div class="b-example-divider b-example-vr"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const $router = useRouter();
+
+const views = ref<any[]>([
+  {
+    name: 'MatchesView',
+    icon: 'home',
+    label: 'Matches',
+  },
+  {
+    name: 'TeamsView',
+    icon: 'home',
+    label: 'Teams',
+  },
+  {
+    name: 'SimulationView',
+    icon: 'home',
+    label: 'Simulador',
+  },
+]);
+
 const $route = useRoute();
-
-const cryptoMenuVisible = ref(true);
-const cryptoMenuStyle = ref('display: block;');
-
-const toggleCryptoMenu = () => {
-  cryptoMenuVisible.value = !cryptoMenuVisible.value;
-  cryptoMenuStyle.value = cryptoMenuVisible.value
-    ? 'display: block;'
-    : 'display: none;';
-};
 </script>
 
 <style scoped>
+.nav-link {
+  color: #ffffff;
+}
 .nav-link.active {
   background-color: #5e00d9;
   color: #ffffff;
@@ -66,5 +100,12 @@ const toggleCryptoMenu = () => {
   width: 100%;
   height: 0.5px;
   background-color: grey;
+}
+
+.content-view {
+  flex-grow: 1; /* Hace que el contenido ocupe todo el espacio disponible */
+  padding: 20px; /* Espaciado interno para el contenido */
+  overflow-y: auto; /* Agrega desplazamiento vertical si el contenido es muy largo */
+  background-color: #f8f9fa; /* Color de fondo para la vista de contenido */
 }
 </style>

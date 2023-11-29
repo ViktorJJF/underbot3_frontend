@@ -7,6 +7,11 @@ import store from '@/store';
 
 const routes = [
   {
+    path: '/test',
+    name: 'TestView',
+    component: () => import('@/views/TestView.vue'),
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('@/views/AppLogin.vue'),
@@ -17,13 +22,28 @@ const routes = [
     meta: { requiresAuth: true },
     component: () => import('@/layouts/AdminLayout.vue'),
     redirect: {
-      name: 'Cities',
+      name: 'MatchesView',
     },
     children: [
       {
-        path: '/cities',
-        name: 'Cities',
-        component: () => import('@/views/CitiesView.vue'),
+        path: '/matches',
+        name: 'MatchesView',
+        component: () => import('@/views/MatchesView.vue'),
+      },
+      {
+        path: '/matches/:id',
+        name: 'MatchDetail',
+        component: () => import('@/views/MatchDetail.vue'),
+      },
+      {
+        path: '/teams',
+        name: 'TeamsView',
+        component: () => import('@/views/TeamsView.vue'),
+      },
+      {
+        path: '/simulator',
+        name: 'SimulationView',
+        component: () => import('@/views/SimulationView.vue'),
       },
     ],
   },

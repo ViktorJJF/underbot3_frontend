@@ -23,11 +23,11 @@
               >
                 Mostrando
                 {{
-                  $store.state.itemsPerPage > cities.length
-                    ? cities.length
+                  $store.state.itemsPerPage > teams.length
+                    ? teams.length
                     : $store.state.itemsPerPage
                 }}
-                de {{ $store.state.citiesModule.total }} registros
+                de {{ $store.state.teamsModule.total }} registros
               </div>
             </div>
             <div class="col-sm-12 col-md-7">
@@ -35,7 +35,7 @@
                 v-model:current-page="page"
                 background
                 layout="pager"
-                :total="$store.state.citiesModule.total"
+                :total="$store.state.teamsModule.total"
                 :page-size="$store.state.itemsPerPage"
                 @current-change="initialize(page)"
               />
@@ -43,7 +43,7 @@
           </div>
           <div class="basic-table-area">
             <!--Basic Table-->
-            <el-table border stripe :data="cities" style="width: 100%">
+            <el-table border stripe :data="teams" style="width: 100%">
               <el-table-column label="Fecha creación" prop="createdAt">
                 <template #default="scope">
                   <span>{{ $formatDate(scope.row.createdAt) }}</span>
@@ -88,11 +88,11 @@
               >
                 Mostrando
                 {{
-                  $store.state.itemsPerPage > cities.length
-                    ? cities.length
+                  $store.state.itemsPerPage > teams.length
+                    ? teams.length
                     : $store.state.itemsPerPage
                 }}
-                de {{ $store.state.citiesModule.total }} registros
+                de {{ $store.state.teamsModule.total }} registros
               </div>
             </div>
             <div class="col-sm-12 col-md-7">
@@ -100,7 +100,7 @@
                 v-model:current-page="page"
                 background
                 layout="pager"
-                :total="$store.state.citiesModule.total"
+                :total="$store.state.teamsModule.total"
                 :page-size="$store.state.itemsPerPage"
                 @current-change="initialize(page)"
               />
@@ -132,7 +132,7 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
-import City from '@/models/Cities';
+import Team from '@/models/Teams';
 import { ElMessageBox } from 'element-plus';
 
 // plugins
@@ -142,9 +142,9 @@ const $store = useStore();
 const $route = useRoute();
 const $router = useRouter();
 // Entity
-const cities = ref<GenericObject[]>([]);
-const editedItem = ref<GenericObject>(City());
-const defaultItem = ref<GenericObject>(City());
+const teams = ref<GenericObject[]>([]);
+const editedItem = ref<GenericObject>(Team());
+const defaultItem = ref<GenericObject>(Team());
 // Pagination
 const pagination = ref<GenericObject>({});
 const page = ref<number>(1);
@@ -160,7 +160,7 @@ const editedIndex = ref<number>(-1);
 const dialog = ref<boolean>(false);
 
 const formTitle = computed(() => {
-  return editedIndex.value === -1 ? 'Crear ciudad' : 'Editar ciudad';
+  return editedIndex.value === -1 ? 'Crear team' : 'Editar team';
 });
 
 watch(search, () => {
@@ -183,20 +183,20 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     sort: 'createdAt',
     order: 'desc',
   };
-  await Promise.all([$store.dispatch('citiesModule/list', payload)]);
-  cities.value = $deepCopy($store.state.citiesModule.cities);
+  await Promise.all([$store.dispatch('teamsModule/list', payload)]);
+  teams.value = $deepCopy($store.state.teamsModule.teams);
 }
 
 async function save() {
   loadingButton.value = true;
   if (editedIndex.value > -1) {
-    let id = cities.value[editedIndex.value]._id;
+    let id = teams.value[editedIndex.value]._id;
     try {
-      await $store.dispatch('citiesModule/update', {
+      await $store.dispatch('teamsModule/update', {
         id,
         data: editedItem.value,
       });
-      Object.assign(cities.value[editedIndex.value], editedItem.value);
+      Object.assign(teams.value[editedIndex.value], editedItem.value);
       close();
     } finally {
       loadingButton.value = false;
@@ -205,10 +205,10 @@ async function save() {
     //create item
     try {
       let newItem = await $store.dispatch(
-        'citiesModule/create',
+        'teamsModule/create',
         editedItem.value,
       );
-      cities.value.push(newItem);
+      teams.value.push(newItem);
       close();
       initialize();
     } finally {
@@ -218,14 +218,14 @@ async function save() {
 }
 
 function editItem(item: GenericObject) {
-  editedIndex.value = cities.value.indexOf(item);
+  editedIndex.value = teams.value.indexOf(item);
   editedItem.value = Object.assign({}, item);
   dialog.value = true;
 }
 
 async function deleteItem(item: GenericObject) {
-  const index = cities.value.indexOf(item);
-  let id = cities.value[index]._id;
+  const index = teams.value.indexOf(item);
+  let id = teams.value[index]._id;
   if (
     await ElMessageBox.confirm(
       '¿Realmente deseas eliminar este registro?',
@@ -237,8 +237,8 @@ async function deleteItem(item: GenericObject) {
       },
     )
   ) {
-    await $store.dispatch('citiesModule/delete', id);
-    cities.value.splice(index, 1);
+    await $store.dispatch('teamsModule/delete', id);
+    teams.value.splice(index, 1);
   }
 }
 

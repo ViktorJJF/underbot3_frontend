@@ -19,5 +19,9 @@ module.exports = {
     'no-redeclare': 'error',
     'no-shadow': 'error',
     '@typescript-eslint/no-unused-vars': 'off',
+    '[vue/valid-v-for]': 'off',
+    'vue/first-attribute-linebreak': 'off',
+    'vue/attributes-order': 'off',
+    'vue/attribute-hyphenation': 'off',
   },
 };

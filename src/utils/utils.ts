@@ -1,7 +1,9 @@
-import { isPast } from 'date-fns';
+import { isPast, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { createToast } from 'mosha-vue-toastify';
 import store from '@/store';
 import type { GenericObject } from '@/types/GenericObject';
+import historyService from '@/services/api/history';
 
 export const formatErrorMessages = (
   translationParent: string,
@@ -155,3 +157,203 @@ export const buildQueryWithPagination = (query: GenericObject) => {
   }
   return { ...queryWithPagination, ...query };
 };
+
+export const addCustomScript = (src: string) => {
+  const recaptchaScript = document.createElement('script');
+  recaptchaScript.setAttribute('src', src);
+  recaptchaScript.async = true;
+  document.head.appendChild(recaptchaScript);
+};
+
+export function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// export let msToTime = (duration) => {
+//   //   var milliseconds = parseInt((duration % 1000) / 100),
+//   (seconds = Math.floor((duration / 1000) % 60)),
+//     (minutes = Math.floor((duration / (1000 * 60)) % 60)),
+//     (hours = Math.floor((duration / (1000 * 60 * 60)) % 24));
+
+//   return (
+//     (hours > 0 ? (hours != 1 ? hours + " horas " : hours + " hora ") : "") +
+//     (minutes > 0 ? minutes + " minutos" : "") +
+//     (seconds > 0 ? seconds + " segundos" : "")
+//   );
+//   // seconds +
+//   // " segundos"
+// };
+
+// export const isLogged = () => {
+//   return new Promise((resolve, reject) => {
+//     axios
+//       .post("/api/users/logged")
+//       .then((res) => {
+//         if (res.data.ok) {
+//           resolve(res.data.payload);
+//         } else {
+//           resolve(false);
+//         }
+//       })
+//       .catch((err) => {
+//         console.error(err);
+//         reject(err);
+//       });
+//   });
+// };
+
+// const localesDateFns = {
+//     en: require('date-fns/locale/en'),
+//     es: require('date-fns/locale/es')
+// }
+
+export const getFormat = (date: string, formatStr: string): string => {
+  // return format(date, formatStr, {
+  //     locale: localesDateFns[window.__localeId__]
+  // })
+  return format(new Date(date), formatStr);
+};
+
+export const timeout = (millis: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, millis);
+  });
+};
+
+export const startsWith = (str: string, word: string): boolean => {
+  return str.lastIndexOf(word, 0) === 0;
+};
+
+export const distinctArrayObjects = (array: GenericObject[], field: string) => {
+  return [...new Set(array.map((item) => item[field]))];
+};
+
+export const millisToMinutesAndSeconds = (millis: number): string => {
+  const minutes: any = Math.floor(millis / 60000);
+  const seconds: any = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+};
+
+export const getHistoryScore24 = async (
+  team1_slug: string,
+  team2_slug: string,
+  matchSlug: string,
+) => {
+  const formattedDate = format(new Date(), 'dd-MM-yyyy', {
+    locale: es,
+  });
+  const response = await historyService.scrapHistory(
+    [team1_slug, team2_slug],
+    formattedDate,
+    matchSlug,
+    2020, // solo hasta 2020
+  );
+  const history = response.data.payload;
+  return history;
+};
+
+export const getMaxMinDifference = (unders: GenericObject[]) => {
+  let max;
+  let min;
+  let maxIndex = 0;
+  let minIndex = 0;
+  for (let i = 0; i < unders.length; i++) {
+    if (i === 0) {
+      max = unders[i].value;
+      min = unders[i].value;
+    } else {
+      if (unders[i].value > max) {
+        max = unders[i].value;
+        maxIndex = i;
+      }
+      if (unders[i].value < min) {
+        min = unders[i].value;
+        minIndex = i;
+      }
+    }
+  }
+  return {
+    max,
+    min,
+    difference: Math.abs(max - min),
+    orientation: maxIndex > minIndex ? 'up' : 'down',
+  };
+};
+
+export const getUpsDowns = (unders: GenericObject[]) => {
+  let upsCounter = 0;
+  let downsCounter = 0;
+  for (let i = 0; i < unders.length; i++) {
+    // if (i > 0 && unders[i].quarter == "c4") {
+    if (unders[i - 1] && unders[i].value > unders[i - 1].value) {
+      upsCounter++;
+    } else if (unders[i - 1] && unders[i].value < unders[i - 1].value) {
+      downsCounter++;
+    }
+    // }
+  }
+  return {
+    upsCounter,
+    downsCounter,
+    upsCounterPercent: (upsCounter / (upsCounter + downsCounter)).toFixed(2),
+    downsCounterPercent: (downsCounter / (upsCounter + downsCounter)).toFixed(
+      2,
+    ),
+  };
+};
+
+export const getInvertedCones = (unders: GenericObject[], range = 12) => {
+  const RANGE = range;
+  let p1, p2, p3;
+  const p1Indexes = [];
+  const p2Indexes: any = [];
+  const p3Indexes: any = [];
+  const pointsFound = false;
+  const points = [];
+  for (let i = 0; i < unders.length; i++) {
+    if (!pointsFound) {
+      p1 = unders[i];
+      for (let j = i; j < unders.length; j++) {
+        if (p1.value - unders[j].value >= RANGE && !p2Indexes.includes(j)) {
+          p2 = unders[j];
+          for (let k = j; k < unders.length; k++) {
+            if (unders[k].value > p1.value && !p3Indexes.includes(k)) {
+              p3 = unders[k];
+              points.push({ p1, p2, p3 });
+              p1Indexes.push(i);
+              p2Indexes.push(j);
+              p3Indexes.push(k);
+              k = unders.length;
+              j = unders.length;
+              i = unders.length;
+            }
+          }
+        }
+      }
+    }
+  }
+  return points;
+};
+
+export function formatDate(value: string, syntax = 'dd/MM/yyyy'): string {
+  return format(new Date(value), syntax, {
+    locale: es,
+  });
+}
+
+export function formatBettingOdds(
+  bettingOdds: GenericObject[],
+): GenericObject[] {
+  return bettingOdds.map((el) => {
+    return {
+      quarter: el.quarter,
+      value: el.odds[0].valueParsed,
+      scores: [el.scores.home, el.scores.away],
+      millis: el.millis,
+      date: formatDate(el.createdAt, 'HH:mm:ss'),
+      underQuota: 1.8,
+      overQuota: 1.9,
+    };
+  });
+}

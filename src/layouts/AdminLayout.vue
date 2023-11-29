@@ -1,20 +1,11 @@
 <template>
-  <!-- Preloader End -->
-  <div class="ecaps-page-wrapper">
-    <TheSidebar></TheSidebar>
-
-    <!-- Page Content -->
-    <div class="ecaps-page-content">
-      <TheHeader></TheHeader>
-
-      <!-- Main Content Area -->
-      <div class="main-content">
-        <div class="container-fluid"><router-view></router-view></div>
-
-        <TheFooter></TheFooter>
-      </div>
-    </div>
-  </div>
+  <TheHeader></TheHeader>
+  <main class="d-flex flex-nowrap">
+    <TheSidebar class="jf-sidebar"></TheSidebar>
+    <ContentView class="custom-content-view">
+      <router-view></router-view>
+    </ContentView>
+  </main>
 </template>
 
 <script lang="ts" setup>
@@ -23,4 +14,11 @@ import TheSidebar from '@/components/TheSidebar.vue';
 import TheFooter from '@/components/TheFooter.vue';
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.custom-content-view {
+  flex-grow: 1; /* Hace que el contenido ocupe todo el espacio disponible */
+  padding: 20px; /* Espaciado interno para el contenido */
+  overflow-y: auto; /* Agrega desplazamiento vertical si el contenido es muy largo */
+  background-color: #f8f9fa; /* Color de fondo para la vista de contenido */
+}
+</style>
