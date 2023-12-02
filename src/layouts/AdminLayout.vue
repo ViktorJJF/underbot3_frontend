@@ -2,9 +2,9 @@
   <TheHeader></TheHeader>
   <main class="d-flex flex-nowrap">
     <TheSidebar class="jf-sidebar"></TheSidebar>
-    <ContentView class="custom-content-view">
+    <div class="custom-content-view">
       <router-view></router-view>
-    </ContentView>
+    </div>
   </main>
 </template>
 

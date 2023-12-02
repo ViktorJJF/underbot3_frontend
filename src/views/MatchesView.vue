@@ -208,6 +208,9 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     order: 'desc',
     league: 'NBA',
     limit: 15,
+    dateFrom: date.value,
+    dateTo: date.value,
+    leagues: $route.query?.leagues,
   };
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
   matches.value = $deepCopy($store.state.matchesModule.matches);

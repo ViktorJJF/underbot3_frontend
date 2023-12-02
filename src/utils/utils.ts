@@ -296,9 +296,9 @@ export const getUpsDowns = (unders: GenericObject[]) => {
   return {
     upsCounter,
     downsCounter,
-    upsCounterPercent: (upsCounter / (upsCounter + downsCounter)).toFixed(2),
-    downsCounterPercent: (downsCounter / (upsCounter + downsCounter)).toFixed(
-      2,
+    upsCounterPercent: roundDecimal(upsCounter / (upsCounter + downsCounter)),
+    downsCounterPercent: roundDecimal(
+      downsCounter / (upsCounter + downsCounter),
     ),
   };
 };
@@ -356,4 +356,8 @@ export function formatBettingOdds(
       overQuota: 1.9,
     };
   });
+}
+
+export function roundDecimal(value: number, decimals = 2): number {
+  return Number(value.toFixed(decimals));
 }

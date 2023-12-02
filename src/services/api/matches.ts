@@ -22,4 +22,26 @@ export default {
   delete(id: string) {
     return axios.delete(config.BACKEND_BASE_URL + `/api/matches/${id}`);
   },
+  listCustom(query = { sort: 'createdAt', order: '1' }) {
+    return axios.get(config.DASHBOARD_BASE_URL + '/api/matches/custom', {
+      params: query,
+    });
+  },
+  getTodayMatches() {
+    return axios.get(
+      config.DASHBOARD_BASE_URL + `/api/matches/get_today_matches`,
+    );
+  },
+  getBeatLastUnder(query = {}) {
+    return axios.get(
+      config.DASHBOARD_BASE_URL + `/api/matches/beat_last_under`,
+      { params: query },
+    );
+  },
+  getMatchesGroupedByTeam(query = {}) {
+    return axios.get(
+      config.DASHBOARD_BASE_URL + `/api/matches/matches_grouped_by_team`,
+      { params: query },
+    );
+  },
 };

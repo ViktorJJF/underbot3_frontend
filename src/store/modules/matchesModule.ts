@@ -105,6 +105,64 @@ const module = {
           });
       });
     },
+    getTodayMatches({ commit }: any) {
+      return new Promise((resolve, reject) => {
+        api
+          .getTodayMatches()
+          .then(
+            (response: {
+              data: { payload: unknown; totalDocs: any; totalPages: any };
+            }) => {
+              commit('list', response.data.payload);
+              commit('totalItems', response.data.totalDocs);
+              commit('totalPages', response.data.totalPages);
+              resolve(response.data.payload);
+            },
+          )
+          .catch((error: GenericObject) => {
+            handleError(error, commit, reject);
+          });
+      });
+    },
+    getBeatLastUnder({ commit }: any, query: any) {
+      console.log('🚀 Aqui *** -> query', query);
+      return new Promise((resolve, reject) => {
+        api
+          .getBeatLastUnder(query)
+          .then(
+            (response: {
+              data: { payload: unknown; totalDocs: any; totalPages: any };
+            }) => {
+              commit('list', response.data.payload);
+              commit('totalItems', response.data.totalDocs);
+              commit('totalPages', response.data.totalPages);
+              resolve(response.data.payload);
+            },
+          )
+          .catch((error: GenericObject) => {
+            handleError(error, commit, reject);
+          });
+      });
+    },
+    getMatchesGroupedByTeam({ commit }: any, query: any) {
+      return new Promise((resolve, reject) => {
+        api
+          .getMatchesGroupedByTeam(query)
+          .then(
+            (response: {
+              data: { payload: unknown; totalDocs: any; totalPages: any };
+            }) => {
+              commit('list', response.data.payload);
+              commit('totalItems', response.data.totalDocs);
+              commit('totalPages', response.data.totalPages);
+              resolve(response.data.payload);
+            },
+          )
+          .catch((error: GenericObject) => {
+            handleError(error, commit, reject);
+          });
+      });
+    },
   },
   mutations: {
     list(state: GenericObject, data: GenericObject) {

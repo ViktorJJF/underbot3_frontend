@@ -6,6 +6,45 @@
           `${match.teams[0].name} (${match.scoresDetailed.home}) - (${match.scoresDetailed.away}) ${match.teams[1].name}`
         }}
       </h5>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Team / Total</th>
+            <th v-for="(score, period) in match.periods" :key="period">
+              {{ period }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ match.teams[0].name }}</td>
+            <td
+              v-for="(score, period) in match.periods"
+              :key="period + '-home'"
+            >
+              {{ score.home }}
+            </td>
+          </tr>
+          <tr>
+            <td>{{ match.teams[1].name }}</td>
+            <td
+              v-for="(score, period) in match.periods"
+              :key="period + '-away'"
+            >
+              {{ score.away }}
+            </td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td
+              v-for="(score, period) in match.periods"
+              :key="period + '-total'"
+            >
+              {{ score.home + score.away }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <h6>ID: {{ match._id }}</h6>
       <h6>
         <a :href="`/matches/${match._id}`" target="_blank">{{
