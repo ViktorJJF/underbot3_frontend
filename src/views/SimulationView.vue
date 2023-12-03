@@ -160,12 +160,14 @@
             <td>
               <a :href="`/matches/${bet.match._id}`" target="_blank">
                 {{
-                  `${bet.match.teams[0].name} (${bet.match.scores[0]}) - (${bet.match.scores[1]}) ${bet.match.teams[1].name}`
+                  `${bet.match.teams[0].name} (${bet.match.scoresDetailed.home}) - (${bet.match.scoresDetailed.away}) ${bet.match.teams[1].name}`
                 }}</a
               >
             </td>
             <td>
-              {{ bet.match.scores[0] + bet.match.scores[1] }}
+              {{
+                bet.match.scoresDetailed.home + bet.match.scoresDetailed.away
+              }}
             </td>
             <td>
               {{ bet.type }} {{ bet.value }} - {{ bet.quarter }}
@@ -186,8 +188,8 @@
             </td>
             <td>
               {{
-                bet.scores && bet.scores.length > 0
-                  ? `${bet.scores[0]} - ${bet.scores[1]}`
+                bet.scoresDetailed
+                  ? `${bet.scoresDetailed.home} - ${bet.scoresDetailed.away}`
                   : 'Sin scores'
               }}
             </td>
@@ -213,13 +215,16 @@ import {
   millisToMinutesAndSeconds,
   roundDecimal,
   formatDate,
+  formatBettingOdds,
 } from '@/utils/utils';
 import type { GenericObject } from '../types/GenericObject';
 
 const matches = ref<GenericObject[]>([]);
-const dateFrom = ref<Date>(new Date(subDays(new Date(), 14)));
+const dateFrom = ref<Date>(new Date(subDays(new Date(), 1)));
 const dateTo = ref<Date>(new Date(subDays(new Date(), 1)));
-const dateBoth = ref<Date>(new Date(subDays(new Date(), 1)));
+// new date 26 november 2023
+
+const dateBoth = ref<Date>(new Date('2023-11-27'));
 const selectedTeam = ref<GenericObject | null>(null);
 const isCalculating = ref<boolean>(false);
 const initialMoney = ref<number>(0);
@@ -323,7 +328,7 @@ async function initialize() {
   }
 
   await Promise.all([
-    $store.dispatch('matchesModule/getBeatLastUnder', payload),
+    $store.dispatch('matchesModule/list', payload),
     $store.dispatch('teamsModule/list', {
       sort: 'name',
       order: 'asc',
@@ -332,6 +337,16 @@ async function initialize() {
   ]);
 
   matches.value = $store.state.matchesModule.matches;
+  // generate unders field
+  matches.value = matches.value.map((el) => ({
+    ...el,
+    unders: formatBettingOdds(el.odds),
+  }));
+  //   matches.value = matches.value.map((el) => ({
+  //   ...el,
+  //   scoresDetailed: {home:el.scores[0],away:el.scores[1]},
+  // }));
+  console.log('🐞 LOG HERE matches.value:', matches.value.length);
   reEvaluateAll();
 }
 
@@ -561,14 +576,14 @@ async function simulate(match: GenericObject) {
               ? underQuota >= overQuota
               : underQuota <= overQuota,
           },
-          {
-            isActive: minimalScoreDifference[0],
-            condition:
-              minimalScoreDifference[1] && scores
-                ? Math.abs(scores[0] - scores[1]) >=
-                  parseInt(minimalScoreDifference[1])
-                : true,
-          },
+          // {
+          //   isActive: minimalScoreDifference[0],
+          //   condition:
+          //     minimalScoreDifference[1] && scores
+          //       ? Math.abs(scores[0] -.scoresDetailed.away) >=
+          //         parseInt(minimalScoreDifference[1])
+          //       : true,
+          // },
           {
             isActive: hasInvertedCones[0],
             condition:
@@ -687,7 +702,10 @@ function placeBet(
 function calculateWinrate(inputBets: GenericObject[]) {
   inputBets.forEach((bet: GenericObject, index: number) => {
     if (bet.type === 'U') {
-      if (bet.value > bet.match.scores[0] + bet.match.scores[1]) {
+      if (
+        bet.value >
+        bet.match.scoresDetailed.home + bet.match.scoresDetailed.away
+      ) {
         unders.value.wins++;
         inputBets[index].win = true;
       } else {
@@ -695,7 +713,10 @@ function calculateWinrate(inputBets: GenericObject[]) {
         inputBets[index].win = false;
       }
     } else {
-      if (bet.value < bet.match.scores[0] + bet.match.scores[1]) {
+      if (
+        bet.value <
+        bet.match.scoresDetailed.home + bet.match.scoresDetailed.away
+      ) {
         overs.value.wins++;
       } else {
         overs.value.losses++;
@@ -732,11 +753,13 @@ function calculateBenefit() {
     filteredBets.value.reduce((acc, bet) => {
       if (
         (bet.type === 'U' &&
-          bet.value > bet.match.scores[0] + bet.match.scores[1]) ||
+          bet.value >
+            bet.match.scoresDetailed.home + bet.match.scoresDetailed.away) ||
         (bet.type === 'O' &&
-          bet.value < bet.match.scores[0] + bet.match.scores[1])
+          bet.value <
+            bet.match.scoresDetailed.home + bet.match.scoresDetailed.away)
       ) {
-        acc += (bet.underQuota || 1.83) * parseFloat(bet.money);
+        acc += (bet.underQuota || 1.63) * parseFloat(bet.money);
       }
       return acc;
     }, 0),
@@ -784,8 +807,10 @@ function simulateByTeams() {
 function isBetWinner(bet: GenericObject) {
   return (
     (bet.type === 'U' &&
-      bet.value > bet.match.scores[0] + bet.match.scores[1]) ||
-    (bet.type === 'O' && bet.value < bet.match.scores[0] + bet.match.scores[1])
+      bet.value >
+        bet.match.scoresDetailed.home + bet.match.scoresDetailed.away) ||
+    (bet.type === 'O' &&
+      bet.value < bet.match.scoresDetailed.home + bet.match.scoresDetailed.away)
   );
 }
 </script>

@@ -348,12 +348,12 @@ export function formatBettingOdds(
   return bettingOdds.map((el) => {
     return {
       quarter: el.quarter,
-      value: el.odds[0].valueParsed,
+      value: el.odds[el.odds.length - 1].valueParsed,
       scores: [el.scores.home, el.scores.away],
       millis: el.millis,
       date: formatDate(el.createdAt, 'HH:mm:ss'),
-      underQuota: 1.8,
-      overQuota: 1.9,
+      underQuota: 1.6,
+      overQuota: 1.6,
     };
   });
 }
