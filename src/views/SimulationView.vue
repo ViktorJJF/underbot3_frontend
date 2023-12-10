@@ -10,7 +10,7 @@
             clearable
           >
             <el-option
-              v-for="(team, idxTeam) in $store.state['teamsModule'].teams"
+              v-for="(team, idxTeam) in $store.state['teamsModule']"
               :key="idxTeam"
               :label="team.name"
               :value="team._id"
@@ -224,7 +224,7 @@ const dateFrom = ref<Date>(new Date(subDays(new Date(), 1)));
 const dateTo = ref<Date>(new Date(subDays(new Date(), 1)));
 // new date 26 november 2023
 
-const dateBoth = ref<Date>(new Date('2023-11-27'));
+const dateBoth = ref<Date>(new Date('2023-11-26'));
 const selectedTeam = ref<GenericObject | null>(null);
 const isCalculating = ref<boolean>(false);
 const initialMoney = ref<number>(0);
@@ -305,7 +305,7 @@ watch(
   () => {
     clearTimeout(delayTimer.value);
     delayTimer.value = setTimeout(() => {
-      // reEvaluateAll function logic goes here
+      reEvaluateAll();
     }, 500);
   },
   { deep: true },
@@ -446,6 +446,7 @@ async function simulate(match: GenericObject) {
         ? 9
         : 12,
     );
+    console.log('🐞 LOG HERE invertedCones:', invertedCones);
   }
   if (
     minimalUpsDownsDifference[0] ||
@@ -770,30 +771,33 @@ function calculateBenefit() {
 }
 
 function hasAvoidedTeam(team: string): boolean {
-  const avoidTeams = [
-    'TOR Raptors',
-    'OKC Thunder',
-    'SAC Kings',
-    'DET Pistons',
-    'CHI Bulls',
-    'UTA Jazz',
-    'DAL Mavericks',
-    'MIN Timberwolves',
-  ];
+  // const avoidTeams = [
+  //   'TOR Raptors',
+  //   'OKC Thunder',
+  //   'SAC Kings',
+  //   'DET Pistons',
+  //   'CHI Bulls',
+  //   'UTA Jazz',
+  //   'DAL Mavericks',
+  //   'MIN Timberwolves',
+  // ];
+
+  const avoidTeams: string[] = [];
 
   return avoidTeams.includes(team);
 }
 
 function hasMidAvoidedTeam(team: string): boolean {
-  const avoidTeams = [
-    'ORL Magic',
-    'LA Lakers',
-    'CHA Hornets',
-    'MEM Grizzlies',
-    'PHI 76ers',
-    'LA Clippers',
-  ];
+  // const avoidTeams = [
+  //   'ORL Magic',
+  //   'LA Lakers',
+  //   'CHA Hornets',
+  //   'MEM Grizzlies',
+  //   'PHI 76ers',
+  //   'LA Clippers',
+  // ];
 
+  const avoidTeams: string[] = [];
   return avoidTeams.includes(team);
 }
 
