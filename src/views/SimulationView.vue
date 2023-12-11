@@ -10,7 +10,7 @@
             clearable
           >
             <el-option
-              v-for="(team, idxTeam) in $store.state['teamsModule']"
+              v-for="(team, idxTeam) in $store.state['teamsModule'].teams"
               :key="idxTeam"
               :label="team.name"
               :value="team._id"
