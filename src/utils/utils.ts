@@ -346,9 +346,14 @@ export function formatBettingOdds(
   bettingOdds: GenericObject[],
 ): GenericObject[] {
   return bettingOdds.map((el) => {
+    // TODO improve this to select any odd easily
+    const underOdds = el.odds.filter((odd) =>
+      odd.value.toLowerCase().includes('menos de'),
+    );
+    const selectedOdd = underOdds[Math.floor(underOdds.length / 2)];
     return {
       quarter: el.quarter,
-      value: el.odds[el.odds.length - 1].valueParsed,
+      value: selectedOdd.valueParsed,
       scores: [el.scores.home, el.scores.away],
       millis: el.millis,
       date: formatDate(el.createdAt, 'HH:mm:ss'),

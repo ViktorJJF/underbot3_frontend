@@ -224,7 +224,7 @@ const dateFrom = ref<Date>(new Date(subDays(new Date(), 1)));
 const dateTo = ref<Date>(new Date(subDays(new Date(), 1)));
 // new date 26 november 2023
 
-const dateBoth = ref<Date>(new Date('2023-11-26'));
+const dateBoth = ref<Date>(new Date('2023-10-26'));
 const selectedTeam = ref<GenericObject | null>(null);
 const isCalculating = ref<boolean>(false);
 const initialMoney = ref<number>(0);
@@ -453,6 +453,12 @@ async function simulate(match: GenericObject) {
     (minimalUpsDownsDifference[0] && minimalUpsDownsDifference[1])
   ) {
     upsDowns = getUpsDowns(filteredUnders);
+    console.log(
+      'Ups downs: ',
+      upsDowns.upsCounterPercent,
+      upsDowns.downsCounterPercent,
+      upsDowns.upsCounterPercent - upsDowns.downsCounterPercent,
+    );
     if (
       upsDowns.upsCounterPercent - upsDowns.downsCounterPercent >=
       parseFloat(minimalUpsDownsDifference[1])

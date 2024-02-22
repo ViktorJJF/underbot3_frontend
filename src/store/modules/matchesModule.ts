@@ -163,6 +163,22 @@ const module = {
           });
       });
     },
+    simulator({ commit }: any, query: GenericObject = {}) {
+      return new Promise((resolve, reject) => {
+        api
+          .simulator(query)
+          .then(
+            (response: {
+              data: { payload: unknown; totalDocs: any; totalPages: any };
+            }) => {
+              resolve(response.data.payload);
+            },
+          )
+          .catch((error: GenericObject) => {
+            handleError(error, commit, reject);
+          });
+      });
+    },
   },
   mutations: {
     list(state: GenericObject, data: GenericObject) {

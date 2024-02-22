@@ -182,6 +182,7 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     fieldsToSearch: fieldsToSearch.value,
     sort: 'createdAt',
     order: 'desc',
+    league: 'NBA',
   };
   await Promise.all([$store.dispatch('teamsModule/list', payload)]);
   teams.value = $deepCopy($store.state.teamsModule.teams);

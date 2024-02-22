@@ -44,4 +44,9 @@ export default {
       { params: query },
     );
   },
+  simulator(query = {}) {
+    return axios.get(config.DASHBOARD_BASE_URL + `/api/matches/simulator`, {
+      params: query,
+    });
+  },
 };

@@ -82,6 +82,11 @@ const views = ref<any[]>([
     icon: 'home',
     label: 'Simulador',
   },
+  {
+    name: 'SimulationView2',
+    icon: 'home',
+    label: 'Simulador 2',
+  },
 ]);
 
 const $route = useRoute();

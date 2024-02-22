@@ -45,6 +45,11 @@ const routes = [
         name: 'SimulationView',
         component: () => import('@/views/SimulationView.vue'),
       },
+      {
+        path: '/simulator-2',
+        name: 'SimulationView2',
+        component: () => import('@/views/SimulationView2.vue'),
+      },
     ],
   },
 ];
