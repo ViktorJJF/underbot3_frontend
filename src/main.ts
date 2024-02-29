@@ -13,6 +13,9 @@ import dateFns from '@/plugins/dateFns';
 import uuid from '@/plugins/uuid';
 import deepCopy from '@/plugins/deepCopy';
 
+// real-time communication
+import '@/plugins/sockets';
+
 // import styles
 import '@/assets/scss/main.scss';
 // import '@/assets/css/databot.css';

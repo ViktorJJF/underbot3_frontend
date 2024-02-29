@@ -154,6 +154,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import { ElMessageBox } from 'element-plus';
 import MatchGraph from '@/components/MatchGraph.vue';
+import MatchesService from '@/services/api/Matches';
 
 // plugins
 const $formatDate: any = inject('$formatDate');
@@ -200,18 +201,23 @@ onMounted(() => {
 });
 
 async function initialize(pageNumber: number = 1): Promise<any> {
+  if (selectedLeagues.value.length) {
+    $router.push({ query: { leagues: selectedLeagues.value } });
+  }
   let payload = {
     page: page.value || pageNumber,
     search: search.value,
     fieldsToSearch: fieldsToSearch.value,
     sort: 'createdAt',
     order: 'desc',
-    league: 'NBA',
     limit: 15,
     dateFrom: date.value,
     dateTo: date.value,
     leagues: $route.query?.leagues,
   };
+  MatchesService.listLeagues(true).then((res) => {
+    leagues.value = res.data.payload;
+  });
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
   matches.value = $deepCopy($store.state.matchesModule.matches);
 }
@@ -230,6 +236,7 @@ function selectLeague(league: string): void {
   } else {
     selectedLeagues.value.push(league);
   }
+  initialize();
 }
 </script>
 

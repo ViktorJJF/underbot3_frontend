@@ -49,4 +49,9 @@ export default {
       params: query,
     });
   },
+  listLeagues(only_today: boolean = false) {
+    return axios.get(config.BACKEND_BASE_URL + '/api/matches/list_leagues', {
+      params: { only_today },
+    });
+  },
 };
