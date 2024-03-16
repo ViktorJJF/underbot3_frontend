@@ -1,0 +1,1 @@
+import{T as n,U as u,V as s}from"./index-TNlp-m_q.js";function o(a,r){n(2,arguments);var t=u(a),e=s(r);return isNaN(e)?new Date(NaN):(e&&t.setDate(t.getDate()+e),t)}function m(a,r){n(2,arguments);var t=s(r);return o(a,-t)}export{m as s};
