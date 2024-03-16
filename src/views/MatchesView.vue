@@ -175,7 +175,7 @@ const search = ref<string>('');
 const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
 const editedIndex = ref<number>(-1);
-const leagues = ref<string[]>(['NBA']);
+const leagues = ref<string[]>(['NBA', 'NCAAB']);
 const selectedLeagues = ref<string[]>([]);
 const selectedMatch = ref<GenericObject | null>(null);
 const prediction = ref<GenericObject | null>(null);
@@ -187,6 +187,8 @@ const formTitle = computed(() => {
   return editedIndex.value === -1 ? 'Crear match' : 'Editar match';
 });
 
+const new_odd = computed(() => $store.state.matchesModule.new_odd);
+
 watch(search, () => {
   clearTimeout(delayTimer.value);
   delayTimer.value = setTimeout(() => {
@@ -194,9 +196,22 @@ watch(search, () => {
     initialize(page.value);
   }, 600);
 });
+// watch matchesModule
+watch(
+  new_odd,
+  (newValue) => {
+    // console.log('🐞 LOG HERE newValue:', newValue);
+    const { matchId, bettingOdds } = newValue;
+    // search match to append bettingOdds
+    const match = matches.value.find((el) => el._id === matchId);
+    // if (match) {
+    //   match.odds.push(...bettingOdds);
+    // }
+  },
+  { deep: true },
+);
 
 onMounted(() => {
-  console.log('xdxd');
   initialize();
 });
 
@@ -219,7 +234,7 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     leagues.value = res.data.payload;
   });
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
-  matches.value = $deepCopy($store.state.matchesModule.matches);
+  matches.value = $store.state.matchesModule.matches;
 }
 
 function getMatchesByDate(): void {

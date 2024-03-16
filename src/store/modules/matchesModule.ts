@@ -9,6 +9,7 @@ import type { GenericObject } from '@/types/GenericObject';
 const module = {
   namespaced: true,
   state: {
+    new_odd: null,
     matches: [],
     total: 0,
     totalPages: 0,
@@ -210,6 +211,9 @@ const module = {
       );
       state.matches.splice(indexToDelete, 1);
       state.total -= 1;
+    },
+    setNewOdd(state: GenericObject, data: GenericObject) {
+      state.new_odd = data;
     },
   },
   getters: {},
