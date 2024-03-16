@@ -1,9 +1,13 @@
+// @ts-nocheck
+
 import io from 'socket.io-client';
 import config from '@/config';
 
 const socketUrl = config.BACKEND_BASE_URL;
 const socket = io(socketUrl);
 import store from '@/store/index';
+
+import type { GenericObject } from '@/types/GenericObject';
 
 socket.on('CONNECTED', (socketId) => {
   console.log('CONECTADO!: ', socketId);
@@ -15,7 +19,7 @@ socket.on('NEW_ODD', (data) => {
   // store.commit('matchesModule/setNewOdd', data);
   // search match
   const match = store.state.matchesModule.matches.find(
-    (match) => match._id == matchId,
+    (el: GenericObject) => el._id == matchId,
   );
   if (match) {
     console.log('🐞 LOG HERE bettingOdds:', bettingOdds);
@@ -26,7 +30,7 @@ socket.on('NEW_ODD', (data) => {
       odd.createdAt = new Date();
     }
     const odds = bettingOdds.find(
-      (odd) => odd.name === 'Totales (incl. prórroga)',
+      (odd: GenericObject) => odd.name === 'Totales (incl. prórroga)',
     );
     if (odds) {
       console.log('pusheando odd: ', odds);
@@ -50,7 +54,7 @@ socket.on('MATCH_DETAIL', (data) => {
   } = data;
   // search match
   const match = store.state.matchesModule.matches.find(
-    (match) => match._id == matchId,
+    (el: GenericObject) => el._id == matchId,
   );
   if (match) {
     match.basketClock = millis;
