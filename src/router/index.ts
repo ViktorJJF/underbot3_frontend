@@ -70,7 +70,7 @@ router.beforeEach((to: any, from: any, next: any) => {
   // } // checkIfTokenNeedsRefresh(); //
   // // store.commit('successModule/success', null); //
   // // store.commit('errorModule/error', null);
-  // return next();
+  return next();
 });
 
 export default router;
