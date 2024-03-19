@@ -4,6 +4,10 @@ import config from '@/config';
 const socketUrl = config.BACKEND_BASE_URL;
 const socket = io(socketUrl);
 import store from '@/store/index';
+import { useRoute } from 'vue-router';
+import { getCurrentPageQueryParams } from '@/utils/utils';
+
+const route = useRoute();
 
 socket.on('CONNECTED', (socketId) => {
   console.log('CONECTADO!: ', socketId);
@@ -17,18 +21,16 @@ socket.on('NEW_ODD', (data) => {
   const match = store.state.matchesModule.matches.find(
     (match) => match._id == matchId,
   );
+  const queryParams = getCurrentPageQueryParams();
   if (match) {
-    console.log('🐞 LOG HERE bettingOdds:', bettingOdds);
-    console.log('🐞 LOG HERE match:', match);
     // search odds to add (for now 'Totales (incl. prórroga)')
     // add createdAt field to all odds
     for (const odd of bettingOdds) {
       odd.createdAt = new Date();
     }
-    const odds = bettingOdds.find(
-      (odd) => odd.name === 'Totales (incl. prórroga)',
-    );
+    const odds = bettingOdds.find((odd) => odd.name === queryParams?.bet_name);
     if (odds) {
+      console.log('🐞 LOG HERE bettingOdds:', bettingOdds);
       console.log('pusheando odd: ', odds);
       match.odds.push(odds);
       console.log('Nuevo match odds: ', match.odds);

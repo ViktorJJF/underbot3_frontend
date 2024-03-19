@@ -49,6 +49,14 @@ export default {
       params: query,
     });
   },
+  listBetNames(only_today: boolean = false, matchesIds: string[] = []) {
+    return axios.get(
+      config.BACKEND_BASE_URL + '/api/matches/list_bettingodds',
+      {
+        params: { only_today, matchesIds },
+      },
+    );
+  },
   listLeagues(only_today: boolean = false) {
     return axios.get(config.BACKEND_BASE_URL + '/api/matches/list_leagues', {
       params: { only_today },

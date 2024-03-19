@@ -61,15 +61,15 @@ const router = createRouter({
 
 router.beforeEach((to: any, from: any, next: any) => {
   // checkForUpdates();
-  const requiresAuth = to.matched.some(
-    (record: any) => record.meta.requiresAuth,
-  );
-  const isTokenSet = store.getters['authModule/isTokenSet'];
-  if (requiresAuth && !isTokenSet) {
-    return next({ name: 'login' });
-  } // checkIfTokenNeedsRefresh(); //
-  // store.commit('successModule/success', null); //
-  // store.commit('errorModule/error', null);
+  // const requiresAuth = to.matched.some(
+  //   (record: any) => record.meta.requiresAuth,
+  // );
+  // const isTokenSet = store.getters['authModule/isTokenSet'];
+  // if (requiresAuth && !isTokenSet) {
+  //   return next({ name: 'login' });
+  // } // checkIfTokenNeedsRefresh(); //
+  // // store.commit('successModule/success', null); //
+  // // store.commit('errorModule/error', null);
   return next();
 });
 
