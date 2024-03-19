@@ -366,3 +366,15 @@ export function formatBettingOdds(
 export function roundDecimal(value: number, decimals = 2): number {
   return Number(value.toFixed(decimals));
 }
+
+export function getCurrentPageQueryParams(): GenericObject {
+  const queryParams: any = {};
+  const currentUrl = window.location.href;
+  const urlObj = new URL(currentUrl);
+  const params = new URLSearchParams(urlObj.search);
+  params.forEach((value, key) => {
+    queryParams[key] = value;
+  });
+
+  return queryParams;
+}

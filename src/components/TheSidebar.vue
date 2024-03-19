@@ -1,7 +1,6 @@
 <template>
-  <div class="d-flex flex-nowrap">
+  <div v-if="isSidebarVisible" class="d-flex flex-nowrap">
     <h1 class="visually-hidden">Sidebars examples</h1>
-
     <div
       class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark"
       style="width: 280px"
@@ -89,6 +88,8 @@ const views = ref<any[]>([
   },
 ]);
 
+const isSidebarVisible = ref(true);
+
 const $route = useRoute();
 </script>
 
@@ -112,5 +113,12 @@ const $route = useRoute();
   padding: 20px; /* Espaciado interno para el contenido */
   overflow-y: auto; /* Agrega desplazamiento vertical si el contenido es muy largo */
   background-color: #f8f9fa; /* Color de fondo para la vista de contenido */
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    /* Show the sidebar on screens wider than 768px */
+    display: block;
+  }
 }
 </style>

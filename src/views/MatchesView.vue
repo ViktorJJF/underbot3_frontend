@@ -4,6 +4,21 @@
       <el-button class="my-2" type="primary" @click="showAllLeagues"
         >Mostrar todas las ligas</el-button
       >
+      <div class="col-sm-3">
+        <el-select
+          v-model="selectedBettingOddName"
+          placeholder="Tipo de apuesta"
+          @change="onSelectBettingOddName($event)"
+          clearable
+        >
+          <el-option
+            v-for="(name, idxBettingOddName) in bettingOddsNames"
+            :key="idxBettingOddName"
+            :label="name"
+            :value="name"
+          />
+        </el-select>
+      </div>
       <div class="row">
         <el-date-picker
           @change="getMatchesByDate()"
@@ -175,8 +190,10 @@ const search = ref<string>('');
 const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
 const editedIndex = ref<number>(-1);
-const leagues = ref<string[]>(['NBA', 'NCAAB']);
-const selectedLeagues = ref<string[]>([]);
+const leagues = ref<string[]>([]);
+const bettingOddsNames = ref<string[]>([]);
+const selectedBettingOddName = ref<string>('Totales (incl. prórroga)');
+const selectedLeagues = ref<string[]>(['NBA']);
 const selectedMatch = ref<GenericObject | null>(null);
 const prediction = ref<GenericObject | null>(null);
 const date = ref<Date>(new Date());
@@ -212,13 +229,23 @@ watch(
 );
 
 onMounted(() => {
+  if ($route?.query?.leagues) {
+    selectedLeagues.value = $route.query.leagues.split(',');
+  }
+  if ($route?.query?.bet_name) {
+    selectedBettingOddName.value = $route.query.bet_name as string;
+  }
+  // push initialized variables to query params
+  $router.push({
+    query: {
+      leagues: selectedLeagues.value,
+      bet_name: selectedBettingOddName.value,
+    },
+  });
   initialize();
 });
 
 async function initialize(pageNumber: number = 1): Promise<any> {
-  if (selectedLeagues.value.length) {
-    $router.push({ query: { leagues: selectedLeagues.value } });
-  }
   let payload = {
     page: page.value || pageNumber,
     search: search.value,
@@ -228,13 +255,20 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     limit: 15,
     dateFrom: date.value,
     dateTo: date.value,
-    leagues: $route.query?.leagues,
+    leagues: selectedLeagues.value,
+    betName: selectedBettingOddName.value,
   };
+  await Promise.all([$store.dispatch('matchesModule/list', payload)]);
+  matches.value = $store.state.matchesModule.matches;
   MatchesService.listLeagues(true).then((res) => {
     leagues.value = res.data.payload;
   });
-  await Promise.all([$store.dispatch('matchesModule/list', payload)]);
-  matches.value = $store.state.matchesModule.matches;
+  MatchesService.listBetNames(
+    true,
+    matches.value.map((el) => el._id),
+  ).then((res) => {
+    bettingOddsNames.value = res.data.payload;
+  });
 }
 
 function getMatchesByDate(): void {
@@ -251,6 +285,27 @@ function selectLeague(league: string): void {
   } else {
     selectedLeagues.value.push(league);
   }
+  if (selectedLeagues.value.length) {
+    $router.push({
+      query: {
+        leagues: selectedLeagues.value,
+        bet_name: selectedBettingOddName.value,
+      },
+    });
+  }
+  initialize();
+}
+
+function onSelectBettingOddName(betName: string): void {
+  if (selectedBettingOddName.value) {
+    $router.push({
+      query: {
+        bet_name: selectedBettingOddName.value,
+        leagues: selectedLeagues.value,
+      },
+    });
+  }
+  selectedBettingOddName.value = betName;
   initialize();
 }
 </script>

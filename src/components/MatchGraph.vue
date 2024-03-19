@@ -55,7 +55,7 @@
       <div class="row">
         <div class="col-sm-12 mb-2">
           <span v-show="match.basketClock !== 0" class="live-match">LIVE</span>
-          <span v-show="match.basketClock === 0" class="match-ended"
+          <span v-show="match.isMatchOver" class="match-ended"
             >Juego Finalizado</span
           >
           <span

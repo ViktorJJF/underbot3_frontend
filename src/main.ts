@@ -13,9 +13,6 @@ import dateFns from '@/plugins/dateFns';
 import uuid from '@/plugins/uuid';
 import deepCopy from '@/plugins/deepCopy';
 
-// real-time communication
-import '@/plugins/sockets';
-
 // import styles
 import '@/assets/scss/main.scss';
 // import '@/assets/css/databot.css';
@@ -33,3 +30,6 @@ app.use(dateFns);
 app.use(uuid);
 app.use(deepCopy);
 app.use(router).use(store).mount('#app');
+
+// real-time communication
+import '@/plugins/sockets';
