@@ -169,7 +169,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import { ElMessageBox } from 'element-plus';
 import MatchGraph from '@/components/MatchGraph.vue';
-import MatchesService from '@/services/api/Matches';
+import MatchesService from '@/services/api/matches';
 
 // plugins
 const $formatDate: any = inject('$formatDate');

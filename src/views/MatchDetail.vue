@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import MatchGraph from '../components/MatchGraph.vue';
 import type { GenericObject } from '@/types/GenericObject';
-import MatchesService from '@/services/api/Matches';
+import MatchesService from '@/services/api/matches';
 
 import { computed, ref, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
