@@ -36,11 +36,15 @@ const module = {
           });
       });
     },
-    listOne({ commit, state }: { commit: any; state: any }, id: string) {
+    listOne(
+      { commit, state }: { commit: any; state: any },
+      { id, query }: { id: string; query: GenericObject },
+    ) {
       commit('loadingModule/showLoading', true, { root: true });
       return new Promise((resolve, reject) => {
+        console.log('🐞 LOG HERE query:', query);
         api
-          .listOne(id)
+          .listOne(id, query)
           .then((response: any) => {
             commit('loadingModule/showLoading', false, { root: true });
             resolve(response.data.payload);
