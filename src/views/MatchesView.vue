@@ -230,7 +230,7 @@ watch(
 
 onMounted(() => {
   if ($route?.query?.leagues) {
-    selectedLeagues.value = $route.query.leagues;
+    selectedLeagues.value = $route.query.leagues as string[];
   }
   if ($route?.query?.bet_name) {
     selectedBettingOddName.value = $route.query.bet_name as string;
