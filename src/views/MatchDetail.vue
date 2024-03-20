@@ -70,7 +70,7 @@ async function initialize(): Promise<any> {
     }),
   ]);
   match.value = await promises[0];
-  MatchesService.listBetNames(true, [match.value._id]).then((res) => {
+  MatchesService.listBetNames(false, [match.value._id]).then((res) => {
     bettingOddsNames.value = res.data.payload;
   });
   bettingOdds.value = match.value.odds;
