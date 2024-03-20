@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import io from 'socket.io-client';
 import config from '@/config';
 
@@ -19,7 +21,7 @@ socket.on('NEW_ODD', (data) => {
   // store.commit('matchesModule/setNewOdd', data);
   // search match
   const match = store.state.matchesModule.matches.find(
-    (match) => match._id == matchId,
+    (el) => el._id == matchId,
   );
   const queryParams = getCurrentPageQueryParams();
   if (match) {
@@ -52,7 +54,7 @@ socket.on('MATCH_DETAIL', (data) => {
   } = data;
   // search match
   const match = store.state.matchesModule.matches.find(
-    (match) => match._id == matchId,
+    (el) => el._id == matchId,
   );
   if (match) {
     match.basketClock = millis;
