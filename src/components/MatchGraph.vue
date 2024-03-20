@@ -424,7 +424,7 @@ function getHistoryUnderPercent(
   const historyMatches = match.history;
   history.value[match.externalId] = historyMatches;
   if (historyMatches && underScore) {
-    let totals = [];
+    let totals: number[] = [];
     let totalSum = 0;
     let unders = 0;
     for (let i = 0; i < historyMatches.length; i++) {

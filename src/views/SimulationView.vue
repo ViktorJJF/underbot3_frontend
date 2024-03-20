@@ -416,14 +416,14 @@ async function simulate(match: GenericObject) {
   const externalId = match.externalId;
   let prediction: GenericObject = {};
   let underProportion;
-  let invertedCones = [];
+  let invertedCones: GenericObject[] = [];
   let upsDowns: GenericObject = {};
   let upsDownsDanger = false;
   let isFirstBet = true;
   const filteredUnders = match.unders.filter((el: { quarter: string }) => {
     return el.quarter !== 'c4';
   });
-  let accumulatedUnders = [];
+  let accumulatedUnders: GenericObject[] = [];
   const {
     fromQuarter,
     untilQuarter,

@@ -9,7 +9,7 @@ export const formatErrorMessages = (
   translationParent: string,
   msg: GenericObject,
 ) => {
-  const errorArray = [];
+  const errorArray: string[] = [];
   // Check for error msgs
   if (msg !== null) {
     const json = JSON.parse(JSON.stringify(msg));
@@ -306,11 +306,11 @@ export const getUpsDowns = (unders: GenericObject[]) => {
 export const getInvertedCones = (unders: GenericObject[], range = 12) => {
   const RANGE = range;
   let p1, p2, p3;
-  const p1Indexes = [];
-  const p2Indexes: any = [];
-  const p3Indexes: any = [];
+  const p1Indexes: number[] = [];
+  const p2Indexes: number[] = [];
+  const p3Indexes: number[] = [];
   const pointsFound = false;
-  const points = [];
+  const points: GenericObject[] = [];
   for (let i = 0; i < unders.length; i++) {
     if (!pointsFound) {
       p1 = unders[i];
