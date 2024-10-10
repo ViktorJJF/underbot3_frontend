@@ -50,6 +50,7 @@
         <a :href="`/matches/${match._id}`" target="_blank">{{
           match.externalId
         }}</a>
+        <a v-if="match.sportsBookId" :href="`https://doradobet.com/deportes/partido/${match.sportsBookId}`" target="_blank">Doradobet {{ match.sportsBookId }}</a>
         - {{ formatDate(match.createdAt) }}
       </h6>
       <div class="row">
