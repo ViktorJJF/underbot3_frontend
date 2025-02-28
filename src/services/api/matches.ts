@@ -10,8 +10,11 @@ export default {
       params: query,
     });
   },
-  listOne(id: string): Promise<any> {
-    return axios.get(config.BACKEND_BASE_URL + '/api/matches/' + id);
+  listOne(id: string, query: GenericObject): Promise<any> {
+    console.log('🐞 LOG HERE query:', query);
+    return axios.get(config.BACKEND_BASE_URL + '/api/matches/' + id, {
+      params: query,
+    });
   },
   update(id: string, payload: GenericObject): Promise<any> {
     return axios.put(config.BACKEND_BASE_URL + `/api/matches/${id}`, payload);

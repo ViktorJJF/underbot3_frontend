@@ -50,6 +50,7 @@
         <a :href="`/matches/${match._id}`" target="_blank">{{
           match.externalId
         }}</a>
+        <a v-if="match.sportsBookId" :href="`https://doradobet.com/deportes/partido/${match.sportsBookId}`" target="_blank">Doradobet {{ match.sportsBookId }}</a>
         - {{ formatDate(match.createdAt) }}
       </h6>
       <div class="row">
@@ -424,7 +425,7 @@ function getHistoryUnderPercent(
   const historyMatches = match.history;
   history.value[match.externalId] = historyMatches;
   if (historyMatches && underScore) {
-    let totals = [];
+    let totals: number[] = [];
     let totalSum = 0;
     let unders = 0;
     for (let i = 0; i < historyMatches.length; i++) {

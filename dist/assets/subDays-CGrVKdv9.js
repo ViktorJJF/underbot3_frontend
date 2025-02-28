@@ -1,0 +1,1 @@
+import{S as s,T as u}from"./index-DHr_EMP0.js";function c(t,a,r){const e=s(t,r==null?void 0:r.in);return isNaN(a)?u(t,NaN):(e.setDate(e.getDate()+a),e)}function D(t,a,r){return c(t,-a,r)}export{D as s};
