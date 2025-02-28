@@ -3,7 +3,7 @@ const IS_DEV: boolean = window.location.hostname === 'localhost';
 
 const BACKEND_BASE_URL: string = IS_DEV
   ? 'http://localhost:3000'
-  : 'https://underbot3-1c596068abaf.herokuapp.com';
+  : 'http://138.199.210.57:3000';
 
 const DASHBOARD_BASE_URL: string = IS_DEV
   ? 'http://localhost:3000'
