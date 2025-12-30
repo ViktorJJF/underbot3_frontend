@@ -3,11 +3,11 @@ const IS_DEV: boolean = window.location.hostname === 'localhost';
 
 const BACKEND_BASE_URL: string = IS_DEV
   ? 'http://localhost:3000'
-  : 'http://138.199.210.57:3000';
+  : 'https://api-underbot.legimus.ai';
 
 const DASHBOARD_BASE_URL: string = IS_DEV
   ? 'http://localhost:3000'
-  : 'https://underbot2.herokuapp.com';
+  : 'https://api-underbot.legimus.ai';
 
 export default {
   BACKEND_BASE_URL,
