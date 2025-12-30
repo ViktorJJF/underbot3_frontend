@@ -60,9 +60,9 @@ export default {
       },
     );
   },
-  listLeagues(only_today: boolean = false) {
+  listLeagues(only_today: boolean = false, dateFrom?: string, dateTo?: string) {
     return axios.get(config.BACKEND_BASE_URL + '/api/matches/list_leagues', {
-      params: { only_today },
+      params: { only_today, dateFrom, dateTo },
     });
   },
 };

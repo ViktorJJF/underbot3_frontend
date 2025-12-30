@@ -230,22 +230,53 @@ watch(
 
 onMounted(() => {
   if ($route?.query?.leagues) {
-    selectedLeagues.value = $route.query.leagues as string[];
+    const leaguesFromQuery = $route.query.leagues;
+    selectedLeagues.value = Array.isArray(leaguesFromQuery)
+      ? (leaguesFromQuery as string[])
+      : [leaguesFromQuery as string];
   }
   if ($route?.query?.bet_name) {
     selectedBettingOddName.value = $route.query.bet_name as string;
+  }
+  if ($route?.query?.date) {
+    date.value = new Date($route.query.date as string);
   }
   // push initialized variables to query params
   $router.push({
     query: {
       leagues: selectedLeagues.value,
       bet_name: selectedBettingOddName.value,
+      date: date.value.toISOString().split('T')[0],
     },
   });
   initialize();
 });
 
 async function initialize(pageNumber: number = 1): Promise<any> {
+  // Format date to UTC timezone at 05:00:00 as expected by the API
+  const formatDateForAPI = (date: Date) => {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}T05:00:00.000Z`;
+  };
+
+  // Format date range for leagues API (start and end of day in UTC)
+  const getDateRangeUTC = (date: Date) => {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return {
+      dateFrom: startOfDay.toISOString(),
+      dateTo: endOfDay.toISOString(),
+    };
+  };
+
+  const dateRange = getDateRangeUTC(date.value);
+
   let payload = {
     page: page.value || pageNumber,
     search: search.value,
@@ -253,14 +284,14 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     sort: 'createdAt',
     order: 'desc',
     limit: 15,
-    dateFrom: date.value,
-    dateTo: date.value,
+    dateFrom: formatDateForAPI(date.value),
+    dateTo: formatDateForAPI(date.value),
     leagues: selectedLeagues.value,
     betName: selectedBettingOddName.value,
   };
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
   matches.value = $store.state.matchesModule.matches;
-  MatchesService.listLeagues(true).then((res) => {
+  MatchesService.listLeagues(true, dateRange.dateFrom, dateRange.dateTo).then((res) => {
     leagues.value = res.data.payload;
   });
   MatchesService.listBetNames(
@@ -272,6 +303,14 @@ async function initialize(pageNumber: number = 1): Promise<any> {
 }
 
 function getMatchesByDate(): void {
+  // Update query params with selected date
+  $router.push({
+    query: {
+      leagues: selectedLeagues.value,
+      bet_name: selectedBettingOddName.value,
+      date: date.value.toISOString().split('T')[0],
+    },
+  });
   initialize();
 }
 
@@ -285,27 +324,25 @@ function selectLeague(league: string): void {
   } else {
     selectedLeagues.value.push(league);
   }
-  if (selectedLeagues.value.length) {
-    $router.push({
-      query: {
-        leagues: selectedLeagues.value,
-        bet_name: selectedBettingOddName.value,
-      },
-    });
-  }
+  $router.push({
+    query: {
+      leagues: selectedLeagues.value,
+      bet_name: selectedBettingOddName.value,
+      date: date.value.toISOString().split('T')[0],
+    },
+  });
   initialize();
 }
 
 function onSelectBettingOddName(betName: string): void {
-  if (selectedBettingOddName.value) {
-    $router.push({
-      query: {
-        bet_name: selectedBettingOddName.value,
-        leagues: selectedLeagues.value,
-      },
-    });
-  }
   selectedBettingOddName.value = betName;
+  $router.push({
+    query: {
+      bet_name: selectedBettingOddName.value,
+      leagues: selectedLeagues.value,
+      date: date.value.toISOString().split('T')[0],
+    },
+  });
   initialize();
 }
 </script>
