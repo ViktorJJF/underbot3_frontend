@@ -27,8 +27,10 @@ const module = {
           .then((response: any) => {
             commit('loadingModule/showLoading', false, { root: true });
             commit('list', response.data.payload);
-            commit('totalItems', response.data.totalDocs);
-            commit('totalPages', response.data.totalPages);
+            // If pagination metadata is not provided, we'll set it to -1
+            // to indicate we don't have a reliable total count
+            commit('totalItems', response.data.totalDocs !== undefined ? response.data.totalDocs : -1);
+            commit('totalPages', response.data.totalPages || 0);
             resolve(response.data.payload);
           })
           .catch((error: any) => {

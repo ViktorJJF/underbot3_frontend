@@ -79,14 +79,14 @@
         
         <!-- Pagination Top -->
         <div class="row mb-3">
-          <div class="col-12 text-center pagination-container">
-            <el-pagination
-              v-model:current-page="latestMatchesPage"
+          <div class="col-12">
+            <PaginationComponent
+              :current-page="latestMatchesPage"
               :page-size="latestMatchesLimit"
               :total="totalMatches"
-              :layout="isMobile ? 'prev, pager, next' : 'prev, pager, next, total'"
-              :small="isMobile"
-              @current-change="handleLatestPageChange"
+              :show-total="!isMobile"
+              :has-next-page="hasNextPage"
+              @page-change="handleLatestPageChange"
             />
           </div>
         </div>
@@ -99,16 +99,16 @@
         </div>
       </div>
 
-      <!-- Pagination -->
+      <!-- Pagination Bottom -->
       <div v-if="viewMode === 'latest'" class="row mt-3">
-        <div class="col-12 text-center pagination-container">
-          <el-pagination
-            v-model:current-page="latestMatchesPage"
+        <div class="col-12">
+          <PaginationComponent
+            :current-page="latestMatchesPage"
             :page-size="latestMatchesLimit"
             :total="totalMatches"
-            :layout="isMobile ? 'prev, pager, next' : 'prev, pager, next, total'"
-            :small="isMobile"
-            @current-change="handleLatestPageChange"
+            :show-total="!isMobile"
+            :has-next-page="hasNextPage"
+            @page-change="handleLatestPageChange"
           />
         </div>
       </div>
@@ -235,6 +235,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { GenericObject } from '@/types/GenericObject';
 import { ElMessageBox } from 'element-plus';
 import MatchGraph from '@/components/MatchGraph.vue';
+import PaginationComponent from '@/components/PaginationComponent.vue';
 import MatchesService from '@/services/api/matches';
 
 // plugins
@@ -267,6 +268,7 @@ const viewMode = ref<string>('date');
 const latestMatchesPage = ref<number>(1);
 const latestMatchesLimit = ref<number>(15);
 const totalMatches = ref<number>(0);
+const hasNextPage = ref<boolean>(false);
 const windowWidth = ref<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
 const dialog = ref<boolean>(false);
@@ -500,6 +502,10 @@ async function loadLatestMatches(): Promise<void> {
   await $store.dispatch('matchesModule/list', payload);
   matches.value = $store.state.matchesModule.matches;
   totalMatches.value = $store.state.matchesModule.total;
+  
+  // Always assume there might be a next page since we don't know the total
+  // The API will return empty results when we reach the end
+  hasNextPage.value = matches.value.length === latestMatchesLimit.value;
 }
 
 function handleLatestPageChange(newPage: number): void {
@@ -527,11 +533,6 @@ function handleLatestPageChange(newPage: number): void {
 .league-tag {
   margin: 0 4px 4px 0;
   cursor: pointer;
-}
-
-.pagination-container {
-  overflow-x: auto;
-  padding: 8px 0;
 }
 
 /* Ensure el-select and el-date-picker are full width on mobile */
