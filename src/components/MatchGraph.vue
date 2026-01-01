@@ -6,6 +6,10 @@
           `${match.teams[0].name} (${match.scoresDetailed.home}) - (${match.scoresDetailed.away}) ${match.teams[1].name}`
         }}
       </h5>
+      <div v-if="showLeague && match.league" class="league-badge mb-2">
+        <span class="league-icon">🏆</span>
+        <span class="league-text">{{ match.league }}</span>
+      </div>
       <table class="table table-sm">
         <thead>
           <tr>
@@ -115,7 +119,7 @@
         </div>
       </div>
       <div class="graph">
-        <ECharts class="chart item" :option="option" />
+        <ECharts class="chart item" :option="option" autoresize />
       </div>
     </div>
     <el-dialog
@@ -291,6 +295,10 @@ const props = defineProps({
     type: Array as PropType<GenericObject[]>,
     default: () => [],
   },
+  showLeague: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const dialog = ref<boolean>(false);
@@ -328,6 +336,7 @@ const quarterPoints = computed(() => {
 
 const option = computed(() => {
   return {
+    devicePixelRatio: window.devicePixelRatio || 2,
     title: {
       text: '',
     },
@@ -362,11 +371,15 @@ const option = computed(() => {
       type: 'category',
       boundaryGap: false,
       data: xData.value,
+      axisLabel: {
+        fontSize: 11,
+      },
     },
     yAxis: {
       type: 'value',
       axisLabel: {
         formatter: '{value} pts',
+        fontSize: 11,
       },
       min:
         yData.value.length > 0
@@ -386,6 +399,10 @@ const option = computed(() => {
         },
         data: yData.value,
         smooth: true,
+        lineStyle: {
+          width: 2,
+        },
+        symbolSize: 6,
         markPoint: {
           data: [
             { type: 'max', name: 'Max' },
@@ -395,6 +412,7 @@ const option = computed(() => {
         markLine: {
           lineStyle: {
             type: 'dotted',
+            width: 1,
           },
           data: quarterPoints.value.map((el) => {
             return {
@@ -403,6 +421,7 @@ const option = computed(() => {
               label: {
                 formatter: el.quarter,
                 position: 'end',
+                fontSize: 11,
               },
               position: 'end',
             };
@@ -500,4 +519,112 @@ function getQuarterPoints() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* League badge styles */
+.league-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in;
+}
+
+.league-icon {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+.league-text {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile-first responsive styles */
+.card {
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 12px;
+}
+
+.card-title {
+  font-size: 14px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.table {
+  font-size: 12px;
+}
+
+.table th,
+.table td {
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.graph {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.chart {
+  min-width: 300px;
+  height: 250px;
+}
+
+h6 {
+  font-size: 12px;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+h6 a {
+  word-break: break-all;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .card-body {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .table {
+    font-size: 14px;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px;
+  }
+
+  .chart {
+    height: 300px;
+  }
+
+  h6 {
+    font-size: 14px;
+  }
+}
+</style>

@@ -1,6 +1,6 @@
 <template>
   <TheHeader></TheHeader>
-  <main class="d-flex flex-nowrap">
+  <main class="main-layout">
     <TheSidebar class="jf-sidebar"></TheSidebar>
     <div class="custom-content-view">
       <router-view></router-view>
@@ -15,10 +15,38 @@ import TheFooter from '@/components/TheFooter.vue';
 </script>
 
 <style lang="scss" scoped>
+.main-layout {
+  display: flex;
+  flex-wrap: nowrap;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
 .custom-content-view {
-  flex-grow: 1; /* Hace que el contenido ocupe todo el espacio disponible */
-  padding: 20px; /* Espaciado interno para el contenido */
-  overflow-y: auto; /* Agrega desplazamiento vertical si el contenido es muy largo */
-  background-color: #f8f9fa; /* Color de fondo para la vista de contenido */
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f8f9fa;
+}
+
+/* Mobile styles */
+@media (max-width: 767.98px) {
+  .main-layout {
+    display: block;
+  }
+
+  .custom-content-view {
+    width: 100%;
+    min-height: 100vh;
+    padding: 60px 12px 12px 12px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .custom-content-view {
+    padding: 20px;
+    width: calc(100vw - 280px);
+  }
 }
 </style>

@@ -5,10 +5,11 @@
 }
 
 .jf-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-
+  /* Mobile: handled by component */
+  @media (max-width: 767.98px) {
+    position: static;
+    height: auto;
+  }
 }
 
 .content-view {
