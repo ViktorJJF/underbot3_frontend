@@ -95,7 +95,7 @@
       <!-- Matches Grid -->
       <div class="row mt-3 g-2 g-md-3">
         <div class="col-12 col-md-6 col-xl-4" v-for="match in matches" :key="match._id">
-          <MatchGraph :match="match" :bettingOdds="match.odds" :showLeague="viewMode === 'latest'"></MatchGraph>
+          <MatchGraph :match="match" :bettingOdds="match.odds" :showLeague="viewMode === 'latest'" :on-show-raw-data="showRawData"></MatchGraph>
         </div>
       </div>
 
@@ -112,6 +112,21 @@
           />
         </div>
       </div>
+
+      <!-- Raw Data Modal -->
+      <el-dialog
+        v-model="showRawMatchModal"
+        title="Datos Raw del Partido"
+        width="60%"
+        :destroy-on-close="true"
+      >
+        <pre class="raw-json"><code>{{ JSON.stringify(rawMatchData, null, 2) }}</code></pre>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="showRawMatchModal = false">Cerrar</el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
     <!-- <el-dialog
       v-model="dialog"
@@ -272,6 +287,10 @@ const hasNextPage = ref<boolean>(false);
 const windowWidth = ref<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
 const dialog = ref<boolean>(false);
+
+// Raw data modal state
+const showRawMatchModal = ref<boolean>(false);
+const rawMatchData = ref<GenericObject | null>(null);
 
 // Computed for responsive behavior
 const isMobile = computed(() => windowWidth.value < 768);
@@ -512,9 +531,30 @@ function handleLatestPageChange(newPage: number): void {
   latestMatchesPage.value = newPage;
   loadLatestMatches();
 }
+
+function showRawData(match: GenericObject): void {
+  rawMatchData.value = match;
+  showRawMatchModal.value = true;
+}
 </script>
 
 <style lang="scss" scoped>
+/* Raw JSON Modal Styles */
+.raw-json {
+  max-height: 60vh;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+  
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #333;
+  }
+}
+
 /* Mobile-first responsive styles */
 .view-mode-toggle {
   width: 100%;

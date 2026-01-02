@@ -56,6 +56,15 @@
         }}</a>
         <a v-if="match.sportsBookId" :href="`https://doradobet.com/deportes/partido/${match.sportsBookId}`" target="_blank">Doradobet {{ match.sportsBookId }}</a>
         - {{ formatDate(match.createdAt) }}
+        <el-button
+          class="ms-2"
+          size="small"
+          type="info"
+          :icon="Document"
+          circle
+          @click="onShowRawData(match)"
+          title="Ver datos raw"
+        />
       </h6>
       <div class="row">
         <div class="col-sm-12 mb-2">
@@ -244,6 +253,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, PropType } from 'vue';
+import { Document } from '@element-plus/icons-vue';
 
 import ECharts from 'vue-echarts';
 import { format } from 'date-fns';
@@ -298,6 +308,10 @@ const props = defineProps({
   showLeague: {
     type: Boolean,
     default: false,
+  },
+  onShowRawData: {
+    type: Function as PropType<(match: GenericObject) => void>,
+    required: true,
   },
 });
 

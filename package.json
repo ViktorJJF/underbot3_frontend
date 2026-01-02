@@ -13,6 +13,7 @@
     "git": "git add . && git commit -m 'update' && git push origin main"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "echarts": "^5.4.3",
