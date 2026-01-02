@@ -325,8 +325,19 @@ const formattedBettingOdds = ref<GenericObject[]>([]);
 
 watch(
   () => props.bettingOdds,
-  () => {
-    formattedBettingOdds.value = formatBettingOdds(props.bettingOdds);
+  (newOdds, oldOdds) => {
+    if (!oldOdds || oldOdds.length === 0) {
+      // Initial load - format all odds
+      formattedBettingOdds.value = formatBettingOdds(newOdds);
+    } else if (newOdds.length > oldOdds.length) {
+      // New odds added - only format and append the new ones
+      const newItems = newOdds.slice(oldOdds.length);
+      const formattedNewItems = formatBettingOdds(newItems);
+      formattedBettingOdds.value.push(...formattedNewItems);
+    } else {
+      // Full replace (shouldn't happen often)
+      formattedBettingOdds.value = formatBettingOdds(newOdds);
+    }
   },
   { deep: true, immediate: true },
 );
