@@ -353,7 +353,7 @@ export function formatBettingOdds(
     const selectedOdd = underOdds[Math.floor(underOdds.length / 2)];
     return {
       quarter: el.quarter,
-      value: selectedOdd.valueParsed,
+      value: selectedOdd?.valueParsed,
       scores: [el.scores?.home, el.scores?.away],
       millis: el.millis,
       date: formatDate(el.createdAt, 'HH:mm:ss'),

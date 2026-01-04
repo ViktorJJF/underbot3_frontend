@@ -52,17 +52,22 @@ export default {
       params: query,
     });
   },
-  listBetNames(only_today: boolean = false, matchesIds: string[] = []) {
+  listBetNames(only_today: boolean = false, matchesIds: string[] = [], bettingHouse?: string) {
     return axios.get(
       config.BACKEND_BASE_URL + '/api/matches/list_bettingodds',
       {
-        params: { only_today, matchesIds },
+        params: { only_today, matchesIds, bettingHouse },
       },
     );
   },
   listLeagues(only_today: boolean = false, dateFrom?: string, dateTo?: string) {
     return axios.get(config.BACKEND_BASE_URL + '/api/matches/list_leagues', {
       params: { only_today, dateFrom, dateTo },
+    });
+  },
+  listBettingHouses(dateFrom?: string, dateTo?: string) {
+    return axios.get(config.BACKEND_BASE_URL + '/api/matches/list_betting_houses', {
+      params: { dateFrom, dateTo },
     });
   },
 };

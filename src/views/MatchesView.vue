@@ -48,17 +48,39 @@
             />
           </div>
         </div>
-        <div class="mt-3 leagues-container">
-          <el-tag
-            v-for="league in leagues"
-            :key="league"
-            class="league-tag mb-2"
-            effect="dark"
-            :type="selectedLeagues.includes(league) ? 'success' : 'info'"
-            round
-            @click="selectLeague(league)"
-            >{{ league }}</el-tag
-          >
+        <div class="mt-3 filters-container">
+          <div class="mb-4 betting-houses-section">
+            <h5 class="mb-3 filter-heading">Casas de Apuestas</h5>
+            <div class="tags-wrapper">
+              <el-tag
+                v-for="bettingHouse in bettingHouses"
+                :key="bettingHouse"
+                class="betting-house-tag mb-2"
+                effect="dark"
+                :type="selectedBettingHouses.includes(bettingHouse) ? 'success' : 'info'"
+                size="large"
+                round
+                @click="selectBettingHouse(bettingHouse)"
+                >{{ bettingHouse }}</el-tag
+              >
+            </div>
+          </div>
+          <el-divider />
+          <div class="mb-3 leagues-section">
+            <h6 class="mb-2 filter-heading-secondary">Ligas</h6>
+            <div class="tags-wrapper">
+              <el-tag
+                v-for="league in leagues"
+                :key="league"
+                class="league-tag mb-2"
+                effect="dark"
+                :type="selectedLeagues.includes(league) ? 'success' : 'info'"
+                round
+                @click="selectLeague(league)"
+                >{{ league }}</el-tag
+              >
+            </div>
+          </div>
           <el-divider />
         </div>
       </div>
@@ -273,9 +295,11 @@ const loadingButton = ref<boolean>(false);
 const delayTimer = ref<any>(null);
 const editedIndex = ref<number>(-1);
 const leagues = ref<string[]>([]);
+const bettingHouses = ref<string[]>([]);
 const bettingOddsNames = ref<string[]>([]);
 const selectedBettingOddName = ref<string>('Totales (incl. prórroga)');
 const selectedLeagues = ref<string[]>([]);
+const selectedBettingHouses = ref<string[]>([]);
 const selectedMatch = ref<GenericObject | null>(null);
 const prediction = ref<GenericObject | null>(null);
 const date = ref<Date>(new Date());
@@ -365,6 +389,12 @@ onMounted(() => {
       ? (leaguesFromQuery as string[])
       : [leaguesFromQuery as string];
   }
+  if ($route?.query?.bettingHouses) {
+    const bettingHousesFromQuery = $route.query.bettingHouses;
+    selectedBettingHouses.value = Array.isArray(bettingHousesFromQuery)
+      ? (bettingHousesFromQuery as string[])
+      : [bettingHousesFromQuery as string];
+  }
   if ($route?.query?.bet_name) {
     selectedBettingOddName.value = $route.query.bet_name as string;
   }
@@ -378,6 +408,7 @@ onMounted(() => {
   $router.push({
     query: {
       leagues: selectedLeagues.value,
+      bettingHouses: selectedBettingHouses.value,
       bet_name: selectedBettingOddName.value,
       date: getLocalDateString(date.value),
     },
@@ -421,6 +452,7 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     dateFrom: formatDateForAPI(date.value),
     dateTo: formatDateForAPI(date.value),
     leagues: selectedLeagues.value,
+    bettingHouses: selectedBettingHouses.value,
     betName: selectedBettingOddName.value,
   };
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
@@ -428,9 +460,14 @@ async function initialize(pageNumber: number = 1): Promise<any> {
   MatchesService.listLeagues(true, dateRange.dateFrom, dateRange.dateTo).then((res) => {
     leagues.value = res.data.payload;
   });
+  MatchesService.listBettingHouses(dateRange.dateFrom, dateRange.dateTo).then((res) => {
+    bettingHouses.value = res.data.payload;
+  });
+  const selectedBettingHouse = selectedBettingHouses.value.length > 0 ? selectedBettingHouses.value[0] : undefined;
   MatchesService.listBetNames(
     true,
     matches.value.map((el) => el._id),
+    selectedBettingHouse,
   ).then((res) => {
     bettingOddsNames.value = res.data.payload;
   });
@@ -441,6 +478,7 @@ function getMatchesByDate(): void {
   $router.push({
     query: {
       leagues: selectedLeagues.value,
+      bettingHouses: selectedBettingHouses.value,
       bet_name: selectedBettingOddName.value,
       date: getLocalDateString(date.value),
     },
@@ -461,6 +499,24 @@ function selectLeague(league: string): void {
   $router.push({
     query: {
       leagues: selectedLeagues.value,
+      bettingHouses: selectedBettingHouses.value,
+      bet_name: selectedBettingOddName.value,
+      date: getLocalDateString(date.value),
+    },
+  });
+  initialize();
+}
+
+function selectBettingHouse(bettingHouse: string): void {
+  if (selectedBettingHouses.value.includes(bettingHouse)) {
+    selectedBettingHouses.value = selectedBettingHouses.value.filter((el) => el !== bettingHouse);
+  } else {
+    selectedBettingHouses.value.push(bettingHouse);
+  }
+  $router.push({
+    query: {
+      leagues: selectedLeagues.value,
+      bettingHouses: selectedBettingHouses.value,
       bet_name: selectedBettingOddName.value,
       date: getLocalDateString(date.value),
     },
@@ -474,6 +530,7 @@ function onSelectBettingOddName(betName: string): void {
     query: {
       bet_name: selectedBettingOddName.value,
       leagues: selectedLeagues.value,
+      bettingHouses: selectedBettingHouses.value,
       date: getLocalDateString(date.value),
     },
   });
@@ -494,6 +551,7 @@ function onViewModeChange(): void {
     $router.push({
       query: {
         leagues: selectedLeagues.value,
+        bettingHouses: selectedBettingHouses.value,
         bet_name: selectedBettingOddName.value,
         date: getLocalDateString(date.value),
       },
@@ -564,15 +622,59 @@ function showRawData(match: GenericObject): void {
   }
 }
 
-.leagues-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+.filters-container {
+  border-top: 1px solid #e4e7ed;
+  padding-top: 16px;
+}
+
+.filter-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.filter-heading-secondary {
+  font-size: 14px;
+  font-weight: 500;
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.betting-houses-section {
+  margin-bottom: 24px;
+}
+
+.betting-house-tag {
+  margin: 0 6px 6px 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.betting-house-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.leagues-section {
+  margin-bottom: 16px;
 }
 
 .league-tag {
   margin: 0 4px 4px 0;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.league-tag:hover {
+  transform: translateY(-1px);
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 /* Ensure el-select and el-date-picker are full width on mobile */
