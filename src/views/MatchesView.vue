@@ -11,6 +11,41 @@
         </div>
       </div>
 
+      <!-- Team Search Section -->
+      <div class="row mb-3">
+        <div class="col-12 col-md-6 col-lg-5 mb-2">
+          <label class="d-block mb-1">Filtrar por equipo:</label>
+          <el-select
+            v-model="selectedTeamId"
+            placeholder="Buscar y seleccionar equipo..."
+            @change="onSelectTeam"
+            filterable
+            clearable
+            class="w-100"
+            :filter-method="filterTeamsMethod"
+          >
+            <el-option
+              v-for="team in filteredTeams"
+              :key="team._id"
+              :label="`${team.name} - ${team.bettingHouse || 'N/A'} - ${team.league || 'N/A'}`"
+              :value="team._id"
+            >
+              <div class="team-option">
+                <span class="team-name">{{ team.name }}</span>
+                <span class="team-meta">
+                  <el-tag size="small" type="info">{{ team.bettingHouse || 'N/A' }}</el-tag>
+                  <el-tag size="small" type="warning">{{ team.league || 'N/A' }}</el-tag>
+                </span>
+              </div>
+            </el-option>
+          </el-select>
+          <small class="text-muted">Escribe para buscar por nombre, casa de apuestas o liga</small>
+        </div>
+        <div v-if="selectedTeamId" class="col-12 col-md-auto mb-2 d-flex align-items-center">
+          <el-button type="danger" @click="clearTeamFilter">Limpiar filtro</el-button>
+        </div>
+      </div>
+
       <!-- Date Filter View -->
       <div v-if="viewMode === 'date'">
         <div class="row mb-2">
@@ -274,6 +309,7 @@ import { ElMessageBox } from 'element-plus';
 import MatchGraph from '@/components/MatchGraph.vue';
 import PaginationComponent from '@/components/PaginationComponent.vue';
 import MatchesService from '@/services/api/matches';
+import TeamsService from '@/services/api/teams';
 
 // plugins
 const $formatDate: any = inject('$formatDate');
@@ -312,12 +348,30 @@ const windowWidth = ref<number>(typeof window !== 'undefined' ? window.innerWidt
 
 const dialog = ref<boolean>(false);
 
+// Team search state
+const teams = ref<GenericObject[]>([]);
+const selectedTeamId = ref<string>('');
+const teamSearchText = ref<string>('');
+
 // Raw data modal state
 const showRawMatchModal = ref<boolean>(false);
 const rawMatchData = ref<GenericObject | null>(null);
 
 // Computed for responsive behavior
 const isMobile = computed(() => windowWidth.value < 768);
+
+// Computed for filtered teams based on text search
+const filteredTeams = computed(() => {
+  if (!teamSearchText.value) {
+    return teams.value;
+  }
+  const searchLower = teamSearchText.value.toLowerCase();
+  return teams.value.filter((team) =>
+    team.name?.toLowerCase().includes(searchLower) ||
+    team.league?.toLowerCase().includes(searchLower) ||
+    team.bettingHouse?.toLowerCase().includes(searchLower)
+  );
+});
 
 // Handle window resize
 function handleResize(): void {
@@ -356,6 +410,7 @@ watch(
   { deep: true },
 );
 
+
 // Helper function to get local date string in YYYY-MM-DD format
 function getLocalDateString(inputDate: Date): string {
   const year = inputDate.getFullYear();
@@ -367,6 +422,14 @@ function getLocalDateString(inputDate: Date): string {
 onMounted(() => {
   // Add resize listener for responsive behavior
   window.addEventListener('resize', handleResize);
+
+  // Load teams for the combobox
+  loadTeams();
+
+  // Restore teamId from query params if available
+  if ($route?.query?.teamId) {
+    selectedTeamId.value = $route.query.teamId as string;
+  }
 
   // Check if view mode is latest
   if ($route?.query?.view === 'latest') {
@@ -442,7 +505,7 @@ async function initialize(pageNumber: number = 1): Promise<any> {
 
   const dateRange = getDateRangeUTC(date.value);
 
-  let payload = {
+  let payload: GenericObject = {
     page: page.value || pageNumber,
     search: search.value,
     fieldsToSearch: fieldsToSearch.value,
@@ -455,6 +518,10 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     bettingHouses: selectedBettingHouses.value,
     betName: selectedBettingOddName.value,
   };
+  // Add team filter if selected
+  if (selectedTeamId.value) {
+    payload.teamId = selectedTeamId.value;
+  }
   await Promise.all([$store.dispatch('matchesModule/list', payload)]);
   matches.value = $store.state.matchesModule.matches;
   MatchesService.listLeagues(true, dateRange.dateFrom, dateRange.dateTo).then((res) => {
@@ -562,20 +629,26 @@ function onViewModeChange(): void {
 
 async function loadLatestMatches(): Promise<void> {
   // Update query params
-  $router.push({
-    query: {
-      view: 'latest',
-      page: latestMatchesPage.value.toString(),
-      limit: latestMatchesLimit.value.toString(),
-    },
-  });
+  const queryParams: GenericObject = {
+    view: 'latest',
+    page: latestMatchesPage.value.toString(),
+    limit: latestMatchesLimit.value.toString(),
+  };
+  if (selectedTeamId.value) {
+    queryParams.teamId = selectedTeamId.value;
+  }
+  $router.push({ query: queryParams });
 
-  const payload = {
+  const payload: GenericObject = {
     page: latestMatchesPage.value,
     sort: 'createdAt',
     order: 'desc',
     limit: latestMatchesLimit.value,
   };
+  // Add team filter if selected
+  if (selectedTeamId.value) {
+    payload.teamId = selectedTeamId.value;
+  }
   await $store.dispatch('matchesModule/list', payload);
   matches.value = $store.state.matchesModule.matches;
   totalMatches.value = $store.state.matchesModule.total;
@@ -594,9 +667,83 @@ function showRawData(match: GenericObject): void {
   rawMatchData.value = match;
   showRawMatchModal.value = true;
 }
+
+// Load all teams for the combobox
+async function loadTeams(): Promise<void> {
+  try {
+    const response = await TeamsService.listAll();
+    teams.value = response.data.payload || [];
+  } catch (error) {
+    console.error('Error loading teams:', error);
+    teams.value = [];
+  }
+}
+
+// Handle team selection from combobox
+function onSelectTeam(teamId: string): void {
+  selectedTeamId.value = teamId;
+  teamSearchText.value = ''; // Clear text search when selecting from combobox
+  $router.push({
+    query: {
+      ...($route.query),
+      teamId: teamId || undefined,
+    },
+  });
+  if (viewMode.value === 'latest') {
+    latestMatchesPage.value = 1;
+    loadLatestMatches();
+  } else {
+    page.value = 1;
+    initialize(page.value);
+  }
+}
+
+// Clear team filter
+function clearTeamFilter(): void {
+  selectedTeamId.value = '';
+  teamSearchText.value = '';
+  const query = { ...($route.query) };
+  delete query.teamId;
+  delete query.teamSearch;
+  $router.push({ query });
+  if (viewMode.value === 'latest') {
+    loadLatestMatches();
+  } else {
+    initialize();
+  }
+}
+
+// Custom filter method for el-select combobox
+function filterTeamsMethod(query: string): void {
+  teamSearchText.value = query;
+}
 </script>
 
 <style lang="scss" scoped>
+/* Team Search Styles */
+.team-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.team-name {
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.team-meta {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 /* Raw JSON Modal Styles */
 .raw-json {
   max-height: 60vh;

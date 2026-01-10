@@ -10,6 +10,9 @@ export default {
       params: query,
     });
   },
+  listAll(): Promise<any> {
+    return axios.get(config.BACKEND_BASE_URL + '/api/teams/all');
+  },
   listOne(id: string): Promise<any> {
     return axios.get(config.BACKEND_BASE_URL + '/api/teams/' + id);
   },

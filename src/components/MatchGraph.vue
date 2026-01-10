@@ -77,6 +77,12 @@
             class="unders-ended"
             >Under Finalizado</span
           >
+          <!-- Foul Counter Badge -->
+          <span v-if="match.foulStats" class="foul-badge ms-2">
+            <span class="foul-home" :class="{ 'danger': match.foulStats.home >= 4 }">{{ match.foulStats.home }}</span>
+            <span class="foul-separator">F</span>
+            <span class="foul-away" :class="{ 'danger': match.foulStats.away >= 4 }">{{ match.foulStats.away }}</span>
+          </span>
         </div>
         <div class="col-sm-6">
           <h6>
@@ -126,11 +132,44 @@
         <div class="col-sm-4">
           <el-button small type="success" plain>Predecir under</el-button>
         </div>
+        <div class="col-12 mt-2">
+          <el-button
+            size="small"
+            :type="showEventsLocal ? 'primary' : 'info'"
+            plain
+            @click="toggleEvents"
+          >
+            {{ showEventsLocal ? 'Ocultar eventos' : 'Ver eventos en vivo' }}
+          </el-button>
+        </div>
       </div>
       <div class="graph">
         <ECharts class="chart item" :option="option" autoresize />
       </div>
+
     </div>
+
+    <!-- Match Events Modal -->
+    <el-dialog
+      v-model="showEventsLocal"
+      :title="`Eventos: ${match.teams[0]?.name} vs ${match.teams[1]?.name}`"
+      width="90%"
+      :fullscreen="isMobile"
+      destroy-on-close
+    >
+      <MatchEvents
+        :match-id="match._id"
+        :home-team-name="match.teams[0]?.name || 'Home'"
+        :away-team-name="match.teams[1]?.name || 'Away'"
+        :show-foul-stats="true"
+        :initial-events="match.matchEvents || []"
+        :initial-foul-stats="match.foulStats || { home: 0, away: 0 }"
+      />
+      <template #footer>
+        <el-button type="primary" @click="showEventsLocal = false">Cerrar</el-button>
+      </template>
+    </el-dialog>
+
     <el-dialog
       v-model="dialog"
       v-if="dialog"
@@ -254,6 +293,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, PropType } from 'vue';
 import { Document } from '@element-plus/icons-vue';
+import MatchEvents from '@/components/MatchEvents.vue';
 
 import ECharts from 'vue-echarts';
 import { format } from 'date-fns';
@@ -313,6 +353,10 @@ const props = defineProps({
     type: Function as PropType<(match: GenericObject) => void>,
     required: true,
   },
+  showEvents: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const dialog = ref<boolean>(false);
@@ -320,6 +364,14 @@ const history = ref<GenericObject>({});
 const prediction = ref<GenericObject>({});
 const matchSlug = ref<string>('');
 const formattedBettingOdds = ref<GenericObject[]>([]);
+const showEventsLocal = ref<boolean>(props.showEvents);
+const windowWidth = ref<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+const isMobile = computed(() => windowWidth.value < 768);
+
+function toggleEvents(): void {
+  showEventsLocal.value = !showEventsLocal.value;
+}
 // const underScore = ref<number>(0);
 // const matchesQty = ref<number>(0);
 
@@ -545,6 +597,42 @@ function getQuarterPoints() {
 </script>
 
 <style scoped>
+/* Foul badge styles */
+.foul-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.foul-home,
+.foul-away {
+  color: #333;
+  min-width: 16px;
+  text-align: center;
+}
+
+.foul-home.danger,
+.foul-away.danger {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.foul-separator {
+  color: #999;
+  margin: 0 4px;
+  font-size: 10px;
+}
+
+/* Events section styles */
+.events-section {
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+
 /* League badge styles */
 .league-badge {
   display: inline-flex;

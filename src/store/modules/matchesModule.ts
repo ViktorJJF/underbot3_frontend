@@ -221,6 +221,31 @@ const module = {
     setNewOdd(state: GenericObject, data: GenericObject) {
       state.new_odd = data;
     },
+    addMatchEvents(state: GenericObject, { matchId, events }: { matchId: string; events: any[] }) {
+      const match = state.matches.find((el: GenericObject) => el._id === matchId);
+      if (match) {
+        // Initialize matchEvents array if not exists
+        if (!match.matchEvents) {
+          match.matchEvents = [];
+        }
+        // Append new events (avoiding duplicates by eventId)
+        for (const event of events) {
+          const exists = match.matchEvents.some((e: any) => e.eventId === event.eventId);
+          if (!exists) {
+            match.matchEvents.push(event);
+          }
+        }
+        // Sort by seconds (time order)
+        match.matchEvents.sort((a: any, b: any) => a.seconds - b.seconds);
+
+        // Update foul counts
+        const foulEvents = match.matchEvents.filter((e: any) => e.type === 'foul');
+        match.foulStats = {
+          home: foulEvents.filter((e: any) => e.team === 'home').length,
+          away: foulEvents.filter((e: any) => e.team === 'away').length,
+        };
+      }
+    },
   },
   getters: {},
 };

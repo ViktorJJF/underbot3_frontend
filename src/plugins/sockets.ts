@@ -67,4 +67,52 @@ socket.on('MATCH_DETAIL', (data) => {
   }
 });
 
+// Listen for match events (fouls, scores, rebounds, etc.)
+socket.on('MATCH_EVENTS', (data) => {
+  const { matchId, events } = data;
+  // Update match events in store
+  const match = store.state.matchesModule.matches.find(
+    (el) => el._id == matchId,
+  );
+  if (match) {
+    // Initialize matchEvents array if not exists
+    if (!match.matchEvents) {
+      match.matchEvents = [];
+    }
+    // Append new events
+    match.matchEvents.push(...events);
+
+    // Update foul counts
+    const newFouls = events.filter((e: any) => e.type === 'foul');
+    if (newFouls.length > 0) {
+      if (!match.foulStats) {
+        match.foulStats = { home: 0, away: 0 };
+      }
+      for (const foul of newFouls) {
+        if (foul.team === 'home') {
+          match.foulStats.home++;
+        } else if (foul.team === 'away') {
+          match.foulStats.away++;
+        }
+      }
+    }
+  }
+});
+
+// Listen for targeted match events updates
+socket.on('MATCH_EVENTS_UPDATE', (data) => {
+  const { matchId, events, homeTeam, awayTeam } = data;
+  // Commit to store for components that subscribe to specific matches
+  store.commit('matchesModule/addMatchEvents', { matchId, events });
+});
+
+// Helper functions to subscribe/unsubscribe to match events
+export function subscribeToMatchEvents(matchId: string): void {
+  socket.emit('SUBSCRIBE_MATCH_EVENTS', matchId);
+}
+
+export function unsubscribeFromMatchEvents(matchId: string): void {
+  socket.emit('UNSUBSCRIBE_MATCH_EVENTS', matchId);
+}
+
 export default socket;
