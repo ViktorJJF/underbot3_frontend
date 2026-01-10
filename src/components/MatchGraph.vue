@@ -3,7 +3,7 @@
     <div class="card-body">
       <h5 class="card-title">
         {{
-          `${match.teams[0].name} (${match.scoresDetailed.home}) - (${match.scoresDetailed.away}) ${match.teams[1].name}`
+          `${match.teams[0].name} (${match.scoresDetailed?.home ?? 0}) - (${match.scoresDetailed?.away ?? 0}) ${match.teams[1].name}`
         }}
       </h5>
       <div v-if="showLeague && match.league" class="league-badge mb-2">
@@ -86,20 +86,20 @@
         </div>
         <div class="col-sm-6">
           <h6>
-            Total: {{ match.scoresDetailed.home + match.scoresDetailed.away }}
+            Total: {{ (match.scoresDetailed?.home ?? 0) + (match.scoresDetailed?.away ?? 0) }}
           </h6>
           <h6 v-if="match.underScore">
             Para alcanzar valor under:
             {{
               match.underScore -
-              (match.scoresDetailed.home + match.scoresDetailed.away)
+              ((match.scoresDetailed?.home ?? 0) + (match.scoresDetailed?.away ?? 0))
             }}
           </h6>
           <h6>
             Tiempo:
             <span class="ml18-BasketballClock_TimerInnerWrapper"
               >{{ match.quarter }}
-              {{ millisToMinutesAndSeconds(match.basketClock) }}</span
+              {{ millisToMinutesAndSeconds(match.basketClock ?? 0) }}</span
             >
           </h6>
         </div>
@@ -117,7 +117,7 @@
             }}</span>
           </h6>
         </div>
-        <div class="col-sm-8">
+        <!-- <div class="col-sm-8">
           <span class="subtitle">Under histórico:</span>
           {{
             getHistoryUnderPercent(
@@ -128,7 +128,7 @@
               { returnMsg: true, sendAlert: true },
             )
           }}
-        </div>
+        </div> -->
         <div class="col-sm-4">
           <el-button small type="success" plain>Predecir under</el-button>
         </div>
