@@ -489,17 +489,24 @@ async function initialize(pageNumber: number = 1): Promise<any> {
     return `${year}-${month}-${day}T05:00:00.000Z`;
   };
 
-  // Format date range for leagues API (start and end of day in local timezone, converted to UTC)
+  // Format date range for leagues API using Lima timezone (UTC-5)
+  // This ensures consistency with the backend regardless of the user's browser timezone
   const getDateRangeUTC = (inputDate: Date) => {
-    // Create start of day in local timezone
-    const startOfDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), 0, 0, 0, 0);
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+    const day = String(inputDate.getDate()).padStart(2, '0');
 
-    // Create end of day in local timezone
-    const endOfDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), 23, 59, 59, 999);
+    // Calculate next day properly (handles month/year boundaries)
+    const nextDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate() + 1);
+    const nextYear = nextDay.getFullYear();
+    const nextMonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+    const nextDayNum = String(nextDay.getDate()).padStart(2, '0');
 
+    // Lima timezone offset is UTC-5, so 00:00 Lima = 05:00 UTC
+    // and 23:59:59.999 Lima = 04:59:59.999 UTC next day
     return {
-      dateFrom: startOfDay.toISOString(),
-      dateTo: endOfDay.toISOString(),
+      dateFrom: `${year}-${month}-${day}T05:00:00.000Z`,
+      dateTo: `${nextYear}-${nextMonth}-${nextDayNum}T04:59:59.999Z`,
     };
   };
 
